@@ -1,0 +1,186 @@
+$ ->
+  recorderDiv = $('.soundfile-recorder')
+
+  if not recorderDiv.length
+    console.debug "No recorder containers found.  Exiting..."
+    return
+
+  # the button user clicks on
+  toggleButton = $(recorderDiv.data('toggle-button'))
+  if toggleButton.length == 0
+    console.error "toggle-button is required and must exist"
+    debugger
+
+  # where the recorded files are displayed
+  previewArea = $(recorderDiv.data('preview-area'))
+  if previewArea.length == 0
+    console.error "preview-area is required and must exist"
+    debugger
+
+  # where should the blob go in the multipart form
+  blobFieldName = recorderDiv.data 'blob-field-name'
+  if blobFieldName.length == 0
+    console.error "blob-field-name is required"
+    debugger
+
+  # start initializing Web Audio API
+  # see example: https://github.com/jiehanzheng/Recorderjs
+  try
+    window.AudioContext = window.AudioContext || window.webkitAudioContext;
+    navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia;
+    window.URL = window.URL || window.webkitURL;
+
+    audio_context = new AudioContext();
+    console.debug "Audio context has been set up."
+  catch e
+    console.error e
+    alert "Web Audio API is not supported by your browser.\n\nUse the latest Google Chrome or Safari instead."
+
+  input = null
+  recorder = null
+
+  console.debug "Setting up Web Audio API getUserMedia()..."
+  navigator.getUserMedia {audio: true}
+  , (stream) ->  # success callback
+    input = audio_context.createMediaStreamSource stream
+    console.log "Media stream has been created."
+    recorder = new Recorder input
+    console.log "Recorder instantiated."
+  , (e) ->  # error callback
+    console.error e
+    alert 'No live audio input: ' + e
+    # TODO: write something more friendly
+
+  toggleButton.click (e) =>
+    # TODO: radio button to decide which clip to upload
+
+    unless input? and recorder?
+      console.error "Unable to start, because input = " + input + ", recorder = " + recorder
+      alert "You have to click Allow to enable us to capture your voice!"
+      return
+
+    if not recorder.recording
+      recorder.record()
+      toggleButton.text "stop"
+      console.log "recorder.recording is now " + recorder.recording
+    else
+      recorder.stop ->
+        console.log "recorder.recording is now " + recorder.recording
+        toggleButton.text "record another"
+
+        recorder.exportWAV (wavBlob) ->
+          recorderDiv.data 'blob', wavBlob
+
+          url = URL.createObjectURL(wavBlob);
+          li = document.createElement('li');
+          au = document.createElement('audio');
+          hf = document.createElement('a');
+   
+          au.controls = true;
+          au.src = url;
+          hf.href = url;
+          hf.download = new Date().toISOString() + '.wav';
+          hf.innerHTML = hf.download;
+          li.appendChild(au);
+          li.appendChild(hf);
+          previewArea.append(li);
+
+        recorder.clear()
+
+  $('form').submit (e) ->
+    formData = new FormData this
+    formData.append blobFieldName, recorderDiv.data 'blob'
+
+    # the reason we use a FormData is that it is hard to inject a Blob into
+    # a form, yet it is much easier to just submit a Blob inside of FormData.
+    #
+    # what the following code does is we send FormData using XHR, then get
+    # the response, replace page URL and replace old document with the new
+    # responseText
+    $.ajax
+      url: this.getAttribute('action')
+      type: "POST"
+      data: formData
+      processData: false
+      contentType: false
+      complete: (jqXHR, textStatus) ->
+        console.debug jqXHR
+        newLocation = jqXHR.getResponseHeader("X-Xhr-Redirected-To")
+        console.log newLocation
+
+        # TODO: unable to use Back button
+        # FIXME: crappy code
+
+        # fake a Turbolink event to have the page handle freeing resources
+        # $(document).trigger('page:receive')
+
+        # FIXME: ???
+        # window.history.pushState {position: window.history.state.position + 1}, '', newLocation
+        window.history.pushState {}, '', newLocation
+        document.open()
+        document.write(jqXHR.responseText)
+        document.close()
+
+        # fake a Turbolink event to have the new page initialize correctly
+        # $(document).trigger('page:load')
+
+    return false
+
+
+class Recorder
+  
+  WORKER_CODE = """
+<%= File.read("app/assets/javascripts/_recorder_worker.js") %>
+"""
+
+  constructor: (source) ->
+    @context = source.context
+    @node = @context.createScriptProcessor 16384, 1, 1
+
+    workerCodeBlobURL = window.URL.createObjectURL new Blob([WORKER_CODE], { "type" : "text/javascript" })
+    @worker = new Worker workerCodeBlobURL
+
+    @worker.postMessage
+      command: 'init'
+      config:
+        sampleRate: @context.sampleRate
+    
+    @recording = false
+    @currCallback = null
+
+    source.connect @node
+    @node.connect @context.destination
+
+    @worker.onmessage = (e) =>
+      blob = e.data
+      @currCallback(blob)
+
+    @node.onaudioprocess = (e) =>
+      unless @recording
+        return
+
+      @worker.postMessage
+        command: 'record'
+        buffer: [e.inputBuffer.getChannelData(0)]
+
+  record: ->
+    @recording = true
+
+  stop: (cb) ->
+    # introduce 0.1s of delay to allow the last bit in our big buffer to be 
+    # sent to worker
+    setTimeout ( =>
+      @recording = false
+      cb.call()
+    ), 100
+
+  clear: ->
+    @worker.postMessage
+      command: 'clear'
+
+  exportWAV: (cb) ->
+    @currCallback = cb
+    @worker.postMessage {
+      command: 'exportWAV'
+      type: 'audio/wav'
+    }

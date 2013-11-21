@@ -1,0 +1,6 @@
+<h1>Editing annotation</h1>
+
+<%= render 'form' %>
+
+<%= link_to 'Show', polymorphic_path([@response, @annotation]) %> |
+<%= link_to 'Back', polymorphic_path([@response, :annotations]) %>

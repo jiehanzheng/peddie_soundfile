@@ -1,0 +1,29 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Response:</strong>
+  <%= @annotation.response_id %>
+</p>
+
+<p>
+  <strong>Audio file:</strong>
+  <%= @annotation.audio_file_id %>
+</p>
+
+<p>
+  <strong>Start second:</strong>
+  <%= @annotation.start_second %>
+</p>
+
+<p>
+  <strong>End second:</strong>
+  <%= @annotation.end_second %>
+</p>
+
+<p>
+  <strong>Notes:</strong>
+  <%= @annotation.notes %>
+</p>
+
+<%= link_to 'Edit', edit_polymorphic_path([@response, @annotation]) %> |
+<%= link_to 'Back', polymorphic_path([@response, :annotations]) %>

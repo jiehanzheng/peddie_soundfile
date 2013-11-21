@@ -1,0 +1,33 @@
+<h1>Listing audio_files</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Wav name</th>
+      <th>Ogg name</th>
+      <th>Path</th>
+      <th>Convert tries</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @audio_files.each do |audio_file| %>
+      <tr>
+        <td><%= audio_file.wav_name %></td>
+        <td><%= audio_file.ogg_name %></td>
+        <td><%= audio_file.path %></td>
+        <td><%= audio_file.convert_tries %></td>
+        <td><%= link_to 'Show', audio_file_path(audio_file, format: :audio_file) %></td>
+        <td><%= link_to 'Edit', edit_audio_file_path(audio_file) %></td>
+        <td><%= link_to 'Destroy', audio_file, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Audio file', new_audio_file_path %>

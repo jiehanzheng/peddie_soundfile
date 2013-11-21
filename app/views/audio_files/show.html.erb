@@ -1,0 +1,24 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Wav name:</strong>
+  <%= @audio_file.wav_name %>
+</p>
+
+<p>
+  <strong>Ogg name:</strong>
+  <%= @audio_file.ogg_name %>
+</p>
+
+<p>
+  <strong>Path:</strong>
+  <%= @audio_file.path %>
+</p>
+
+<p>
+  <strong>Convert tries:</strong>
+  <%= @audio_file.convert_tries %>
+</p>
+
+<%= link_to 'Edit', edit_audio_file_path(@audio_file) %> |
+<%= link_to 'Back', audio_files_path %>

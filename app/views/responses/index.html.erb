@@ -1,0 +1,33 @@
+<h1>Listing responses</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Assignment</th>
+      <th>User</th>
+      <th>Audio file</th>
+      <th>Notes</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @responses.each do |response| %>
+      <tr>
+        <td><%= response.assignment_id %></td>
+        <td><%= response.user_id %></td>
+        <td><%= response.audio_file_id %></td>
+        <td><%= response.notes %></td>
+        <td><%= link_to 'Show', response %></td>
+        <td><%= link_to 'Edit', edit_response_path(response) %></td>
+        <td><%= link_to 'Destroy', response, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Response', new_response_path %>

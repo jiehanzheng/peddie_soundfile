@@ -1,0 +1,35 @@
+<h1>Listing annotations</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Response</th>
+      <th>Sound file</th>
+      <th>Start second</th>
+      <th>End second</th>
+      <th>Notes</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @annotations.each do |annotation| %>
+      <tr>
+        <td><%= annotation.response_id %></td>
+        <td><%= annotation.audio_file_id %></td>
+        <td><%= annotation.start_second %></td>
+        <td><%= annotation.end_second %></td>
+        <td><%= annotation.notes %></td>
+        <td><%= link_to 'Show', new_polymorphic_path([@response, annotation]) %></td>
+        <td><%= link_to 'Edit', edit_polymorphic_path([@response, annotation]) %></td>
+        <td><%= link_to 'Destroy', polymorphic_path([@response, annotation]), method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Annotation', new_polymorphic_path([@response, :annotation]) %>

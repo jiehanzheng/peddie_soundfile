@@ -1,0 +1,28 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Assignment:</strong>
+  <%= @response.assignment_id %>
+</p>
+
+<p>
+  <strong>User:</strong>
+  <%= @response.user_id %>
+</p>
+
+<p>
+  <strong>Audio file:</strong>
+  <%= @response.audio_file_id %>
+  <%= content_tag :div, { :class => 'soundfile-player', :'data-annotation-list-src' => polymorphic_path([@response, :annotations], format: :json) } do %>
+    <%= content_tag(:audio, '', src: polymorphic_path(@response.audio_file, format: :audio_file), controls: true) %>
+  <% end %>
+</p>
+
+<p>
+  <strong>Notes:</strong>
+  <%= @response.notes %>
+</p>
+
+<%= link_to 'Add annotation', new_polymorphic_path([@response, :annotation]) %> |
+<%= link_to 'Edit', edit_response_path(@response) %> |
+<%= link_to 'Back', responses_path %>

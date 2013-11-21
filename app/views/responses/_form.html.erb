@@ -1,0 +1,30 @@
+<%= form_for(@response) do |f| %>
+  <% if @response.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@response.errors.count, "error") %> prohibited this response from being saved:</h2>
+
+      <ul>
+      <% @response.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div id="audio_file" class="field">
+    <div class="soundfile-recorder"
+         data-toggle-button="button#recording_toggle"
+         data-preview-area="ul#recording_preview"
+         data-blob-field-name="response[audio_file_io]"></div>
+    <button type="button" id="recording_toggle">start recording</button>
+    <ul id="recording_preview"></ul>
+  </div>
+  
+  <div class="field">
+    <%= f.label :notes %><br>
+    <%= f.text_area :notes %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

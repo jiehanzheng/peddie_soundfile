@@ -1,0 +1,39 @@
+<%= form_for([@response, @annotation]) do |f| %>
+  <% if @annotation.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@annotation.errors.count, "error") %> prohibited this annotation from being saved:</h2>
+
+      <ul>
+      <% @annotation.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+
+  <div id="audio_file" class="field">
+    <div class="soundfile-recorder"
+         data-toggle-button="button#recording_toggle"
+         data-preview-area="ul#recording_preview"
+         data-blob-field-name="annotation[audio_file_io]"></div>
+    <button type="button" id="recording_toggle">start recording</button>
+    <ul id="recording_preview"></ul>
+  </div>
+
+  <div class="field">
+    <%= f.label :start_second %><br>
+    <%= f.text_field :start_second %>
+  </div>
+  <div class="field">
+    <%= f.label :end_second %><br>
+    <%= f.text_field :end_second %>
+  </div>
+  <div class="field">
+    <%= f.label :notes %><br>
+    <%= f.text_area :notes %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>
