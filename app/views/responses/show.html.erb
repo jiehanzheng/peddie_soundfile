@@ -13,8 +13,14 @@
 <p>
   <strong>Audio file:</strong>
   <%= @response.audio_file_id %>
-  <%= content_tag :div, { :class => 'soundfile-player', :'data-annotation-list-src' => polymorphic_path([@response, :annotations], format: :json) } do %>
-    <%= content_tag(:audio, '', src: polymorphic_path(@response.audio_file, format: :audio_file), controls: true) %>
+  <%= content_tag :div, { :id => 'main_sound_file',
+                          :class => 'soundfile-player', 
+                          :'data-annotation-list-src' => polymorphic_path([@response, :annotations], format: :json),
+                          :'data-control-container' => "#audio_control" } do %>
+    <%= content_tag :audio, nil, src: polymorphic_path(@response.audio_file, format: :audio_file), 
+                                 controls: true, 
+                                 preload: true %>
+    <div id="audio_control"></div>
   <% end %>
 </p>
 
@@ -22,6 +28,14 @@
   <strong>Notes:</strong>
   <%= @response.notes %>
 </p>
+
+<p>
+  <strong>Teacher&rsquo;s comments:</strong>
+</p>
+
+<ul>
+  <%= render @response.annotations, locals: {response: @response} %>
+</ul>
 
 <%= link_to 'Add annotation', new_polymorphic_path([@response, :annotation]) %> |
 <%= link_to 'Edit', edit_response_path(@response) %> |
