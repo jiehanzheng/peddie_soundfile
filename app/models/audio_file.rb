@@ -32,7 +32,7 @@ class AudioFile < ActiveRecord::Base
 
   private
     def get_base_path()
-      Rails.root.join('data')
+      Rails.root.join('public', 'data')
     end
 
     def save_file

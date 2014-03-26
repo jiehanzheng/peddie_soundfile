@@ -20,5 +20,8 @@
 /log/*.log
 /tmp
 
+# Bower components
+/vendor/assets/components/*
+
 # Data folder containing sound files.
-/data
+/public/data
