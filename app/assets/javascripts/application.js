@@ -13,6 +13,6 @@
 //= require jquery
 //= require jquery_ujs
 //= require responses
-//= require wavesurfer.js/build/wavesurfer.min.js
-//= require soundfile_player
+//= require player
+//= require visualizer
 //= require soundfile_recorder

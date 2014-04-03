@@ -41,6 +41,22 @@ $ ->
         playThisFirst.on 'timeupdate', playThisFirstStopCheck
 
     # TODO: draw controls
+    console.log "SRC = " + audioElement.attr('src')
+
+    wavesurfer = Object.create(WaveSurfer);
+    wavesurfer.init({
+      container: "#timeline"
+    })
+    # wavesurfer.on 'ready', ->
+    #   console.log 'oh harrow'
+
+    #   timeline = Object.create(WaveSurfer.Timeline)
+    #   timeline.init({
+    #     wavesurfer: wavesurfer
+    #   });
+
+    wavesurfer.load(audioElement.attr('src'));
+
 
     # test currentTime
     audioElement.on 'timeupdate', (e) ->
