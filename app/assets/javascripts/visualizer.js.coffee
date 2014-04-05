@@ -8,25 +8,41 @@ class window.Visualizer
 
 
   constructor: (@audioContext, @audioBuffer, @container, params = {}) ->
+    # get audio properties
+    @audioDuration = @audioBuffer.duration
+    @numberOfSamples = Math.floor(@audioDuration * @zoom * @sppx)
+    @sampleSize = Math.floor(@audioBuffer.length / @numberOfSamples)
+
     # dimensions
     @height = params.height
-    @width = 1000
+    @width = @numberOfSamples
+
+    # create wrapper to accomplish scrolling and mouse event handling
+    @wrapper = document.createElement 'wave-visualizer'
+    @wrapper.style.display = 'block'
+    @wrapper.style.position = 'relative'
+    @wrapper.style.width = '100%'
+    @wrapper.style.height = @height + 'px'
+    @wrapper.style.userSelect = 'none'
+    @wrapper.style.overflowX = 'scroll'
+    @container.appendChild @wrapper
 
     # create wave canvas for wave for the file
     @waveCanvas = document.createElement 'canvas'
     @waveCanvas.style.position = 'absolute'
     @waveCanvas.style.zIndex = 1
     @waveCanvasContext = @waveCanvas.getContext '2d'
-    @container.appendChild @waveCanvas
+    @wrapper.appendChild @waveCanvas
 
     # wrapper for progress wave for covering up unplayed part
     @progressWrapper = document.createElement 'div'
     @progressWrapper.style.width = '0'
+    @progressWrapper.style.height = @height + 'px'
     @progressWrapper.style.position = 'absolute'
     @progressWrapper.style.zIndex = 2
     @progressWrapper.style.overflow = 'hidden'
     @progressWrapper.style.borderRight = '2px solid red'
-    @container.appendChild @progressWrapper
+    @wrapper.appendChild @progressWrapper
 
     # progress canvas in a different color, visible only after played
     @progressCanvas = document.createElement 'canvas'
@@ -38,13 +54,15 @@ class window.Visualizer
 
     @draw()
 
+    # set up click handler for click-to-seek
+    @wrapper.addEventListener 'mousedown', (e) =>
+      if @seekHandler?
+        percentageInContainer = e.offsetX / @width
+        if percentageInContainer >= 0 and percentageInContainer <= 1
+          @seekHandler percentageInContainer * @audioDuration
+
 
   draw: ->
-    # get audio properties
-    @audioDuration = @audioBuffer.duration
-    @numberOfSamples = Math.floor(@audioDuration * @zoom * @sppx)
-    sampleSize = Math.floor(@audioBuffer.length / @numberOfSamples)
-
     # consider only left channel for now
     @points = @audioBuffer.getChannelData(0)
     
@@ -61,8 +79,8 @@ class window.Visualizer
     # loop through summary @points we want to produce and visualize
     for sampleId in [0...@numberOfSamples]
       # find corresponding start/end positions in audio file for this point
-      start = sampleId * sampleSize
-      end = start + sampleSize
+      start = sampleId * @sampleSize
+      end = start + @sampleSize
 
       # find highest absolute value within this range
       pointsInRange = @points.subarray start, end + 1
@@ -99,9 +117,6 @@ class window.Visualizer
 
     console.log "resizeCanvases: width = " + @width + ", height = " + @height + ", sppx = " + @sppx
 
-    @container.style.height = @height + 'px'
-    @container.style.width = @width + 'px'
-
     # if desired sppx doesn't match backing store pixel ratio, manually upscale canvas
     rescaleRatio = @sppx/@canvasBackingStorePixelRatio
 
@@ -113,3 +128,7 @@ class window.Visualizer
       # css dimensions
       canvas.style.height = @height + 'px'
       canvas.style.width = @width + 'px'
+
+
+  setSeekHandler: (@seekHandler) ->
+

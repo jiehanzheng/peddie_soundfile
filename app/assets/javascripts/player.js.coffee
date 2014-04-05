@@ -15,6 +15,7 @@ class window.Player
       @audioContext.decodeAudioData @audioData
       , (@audioBuffer) => 
         @visualizer = new Visualizer @audioContext, @audioBuffer, @container, height: 200
+        @visualizer.setSeekHandler @seek
         @ready = true
       , ->
         console.error "Unable to decode downloaded audio data."
@@ -51,7 +52,7 @@ class window.Player
     @source = @audioContext.createBufferSource()
     @source.buffer = @audioBuffer
     @source.connect @audioContext.destination
-    @source.start 0, @lastPauseSecond  # play now from "" in the buffer
+    @source.start 0, @lastPauseSecond  # play now from @lastPauseSecond in the buffer
     @lastStartedTime = @audioContext.currentTime
     @playing = true
 
@@ -106,6 +107,12 @@ class window.Player
     if @playing
       requestAnimationFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame
       requestAnimationFrame @updateVisualizerContinuously
+
+
+  seek: (second) =>
+    @stop()
+    @lastPauseSecond = second
+    @play()
 
 
 $ ->
