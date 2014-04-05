@@ -1,18 +1,29 @@
 class window.Player
+
+  playing: false
+  playedSeconds: 0
+  lastPauseSecond: 0
+  lastStartedTime: 0
+
   constructor: (url, @container, params = {}) ->
     AudioContext = AudioContext || webkitAudioContext;
     @audioContext = new AudioContext()
 
-    # decode audio data to a buffer
-    loadSoundFile(url).then (@audioData) => 
-      @visualizer = new Visualizer @audioContext, @audioData, @container,
-        height: 200
+    # download audio data
+    @loadSoundFile(url).then (@audioData) => 
+      # decode data into a buffer
+      @audioContext.decodeAudioData @audioData
+      , (@audioBuffer) => 
+        @visualizer = new Visualizer @audioContext, @audioBuffer, @container, height: 200
+        @ready = true
+      , ->
+        console.error "Unable to decode downloaded audio data."
       
     , (error) ->
         console.error "Unable to load sound file: " + error
 
 
-  loadSoundFile = (url) ->
+  loadSoundFile: (url) ->
     return new Promise (resolve, reject) ->
       req = new XMLHttpRequest()
       req.open 'GET', url, true
@@ -30,6 +41,73 @@ class window.Player
       req.send()
 
 
+  play: =>
+    if @playing
+      @stop()
+
+    unless @audioBuffer?
+      return
+
+    @source = @audioContext.createBufferSource()
+    @source.buffer = @audioBuffer
+    @source.connect @audioContext.destination
+    @source.start 0, @lastPauseSecond  # play now from "" in the buffer
+    @lastStartedTime = @audioContext.currentTime
+    @playing = true
+
+    @updateVisualizerContinuously()
+
+
+  pause: =>
+    # record pause time
+    @lastPauseSecond = @getPlayedSeconds()
+
+    @stopSource()
+    @playing = false
+
+
+  stop: =>
+    @stopSource()
+    @lastPauseSecond = 0
+    @playing = false
+
+
+  stopSource: ->
+    try
+      @source.stop()
+    catch error
+      console.error "Error stopping source: " + error
+
+
+  getPlayedSeconds: =>
+    if @playing
+      @lastPauseSecond + (@audioContext.currentTime - @lastStartedTime)
+    else
+      @lastPauseSecond
+
+
+  setPlayButton: (element) ->
+    @playButton = element
+    @playButton.onclick = @play
+
+
+  setPauseButton: (element) ->
+    @pauseButton = element
+    @pauseButton.onclick = @pause
+
+
+  getPlayedPercentage: ->
+    @getPlayedSeconds() / @audioBuffer.duration
+
+
+  updateVisualizerContinuously: =>
+    @visualizer.setProgress @getPlayedPercentage()
+
+    if @playing
+      requestAnimationFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame
+      requestAnimationFrame @updateVisualizerContinuously
+
+
 $ ->
   playerDivs = $ '.soundfile-player'
 
@@ -41,4 +119,7 @@ $ ->
     playerDiv = $ playerDiv
     
     container = $('<div>').appendTo(playerDiv)[0]
-    visualizer = new Player playerDiv.data('audio-src'), container
+    player = new Player playerDiv.data('audio-src'), container
+
+    player.setPlayButton $('#play')[0]
+    player.setPauseButton $('#pause')[0]

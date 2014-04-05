@@ -6,9 +6,8 @@ class window.Visualizer
   # audio samples per logical pixel
   sppx: 1
 
-  # 
 
-  constructor: (@audioContext, @audioData, @container, params = {}) ->
+  constructor: (@audioContext, @audioBuffer, @container, params = {}) ->
     # dimensions
     @height = params.height
     @width = 1000
@@ -22,9 +21,11 @@ class window.Visualizer
 
     # wrapper for progress wave for covering up unplayed part
     @progressWrapper = document.createElement 'div'
+    @progressWrapper.style.width = '0'
     @progressWrapper.style.position = 'absolute'
     @progressWrapper.style.zIndex = 2
     @progressWrapper.style.overflow = 'hidden'
+    @progressWrapper.style.borderRight = '2px solid red'
     @container.appendChild @progressWrapper
 
     # progress canvas in a different color, visible only after played
@@ -33,16 +34,9 @@ class window.Visualizer
     @progressWrapper.appendChild @progressCanvas
     
     @canvases = [@waveCanvas, @progressCanvas]
-
     @resizeCanvases()
 
-    # read buffer and get peaks
-    @audioContext.decodeAudioData @audioData
-    , (@audioBuffer) => 
-      @draw()
-      @setProgress(0.5)
-    , ->
-      console.error "Unable to decode downloaded audio data."
+    @draw()
 
 
   draw: ->
@@ -54,7 +48,7 @@ class window.Visualizer
     # consider only left channel for now
     @points = @audioBuffer.getChannelData(0)
     
-    console.log "Plotting " + @numberOfSamples + " sample values from " + @points.length + " points..."
+    console.log "draw: " + @numberOfSamples + " sample values from " + @points.length + " points..."
 
     @waveCanvasContext.strokeStyle = '#2A2522'
     @waveCanvasContext.beginPath()
@@ -72,7 +66,7 @@ class window.Visualizer
 
       # find highest absolute value within this range
       pointsInRange = @points.subarray start, end + 1
-      pointsInRangeAbs = (Math.abs(x) for x in pointsInRange)  # fast absolute value (it's ok if off by one when negative)
+      pointsInRangeAbs = (Math.abs(x) for x in pointsInRange)
       absMax = Math.max.apply null, pointsInRangeAbs
       
       # if @sppx > 1, only stretch vertically to fit canvas, 
@@ -95,7 +89,7 @@ class window.Visualizer
 
 
   setProgress: (percentage) ->
-    @progressWrapper.style.width = @waveCanvas.width * percentage + 'px'
+    @progressWrapper.style.width = @waveCanvas.width / @sppx * percentage + 'px'
     
 
   resizeCanvases: ->
@@ -103,7 +97,7 @@ class window.Visualizer
     @sppx = window.devicePixelRatio
     @canvasBackingStorePixelRatio = @waveCanvasContext.backingStorePixelRatio || @waveCanvasContext.webkitBackingStorePixelRatio || 1
 
-    console.log "canvases resize: width = " + @width + ", height = " + @height + ", sppx = " + @sppx
+    console.log "resizeCanvases: width = " + @width + ", height = " + @height + ", sppx = " + @sppx
 
     @container.style.height = @height + 'px'
     @container.style.width = @width + 'px'
