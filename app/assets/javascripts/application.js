@@ -13,6 +13,6 @@
 //= require jquery
 //= require jquery_ujs
 //= require responses
-//= require player
+//= require soundfile_ctrl
 //= require visualizer
 //= require soundfile_recorder

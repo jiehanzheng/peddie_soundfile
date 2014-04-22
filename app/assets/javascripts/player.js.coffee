@@ -1,12 +1,11 @@
 class window.Player
 
   playing: false
-  playedSeconds: 0
   lastPauseSecond: 0
   lastStartedTime: 0
 
   constructor: (url, @container, params = {}) ->
-    AudioContext = AudioContext || webkitAudioContext;
+    AudioContext = window.AudioContext || window.webkitAudioContext || window.mozAudioContext;
     @audioContext = new AudioContext()
 
     # download audio data
@@ -21,7 +20,7 @@ class window.Player
         console.error "Unable to decode downloaded audio data."
       
     , (error) ->
-        console.error "Unable to load sound file: " + error
+      console.error "Unable to load sound file: " + error
 
 
   loadSoundFile: (url) ->
@@ -56,7 +55,8 @@ class window.Player
     @lastStartedTime = @audioContext.currentTime
     @playing = true
 
-    @updateVisualizerContinuously()
+    if @visualizer?
+      @updateVisualizerContinuously()
 
 
   pause: =>
@@ -105,7 +105,7 @@ class window.Player
     @visualizer.setProgress @getPlayedPercentage()
 
     if @playing
-      requestAnimationFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame
+      requestAnimationFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame
       requestAnimationFrame @updateVisualizerContinuously
 
 

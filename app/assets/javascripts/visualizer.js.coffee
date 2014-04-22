@@ -1,5 +1,8 @@
 class window.Visualizer
 
+  width: 0
+  height: 0
+
   # logical pixels per second
   zoom: 8
 
@@ -8,15 +11,6 @@ class window.Visualizer
 
 
   constructor: (@audioContext, @audioBuffer, @container, params = {}) ->
-    # get audio properties
-    @audioDuration = @audioBuffer.duration
-    @numberOfSamples = Math.floor(@audioDuration * @zoom * @sppx)
-    @sampleSize = Math.floor(@audioBuffer.length / @numberOfSamples)
-
-    # dimensions
-    @height = params.height
-    @width = @numberOfSamples
-
     # create wrapper to accomplish scrolling and mouse event handling
     @wrapper = document.createElement 'wave-visualizer'
     @wrapper.style.display = 'block'
@@ -51,10 +45,21 @@ class window.Visualizer
     
     @canvases = [@waveCanvas, @progressCanvas]
     @resizeCanvases()
+    
+    # get audio properties
+    @audioDuration = @audioBuffer.duration
+    @numberOfSamples = Math.floor(@audioDuration * @zoom * @sppx)
+    @sampleSize = Math.floor(@audioBuffer.length / @numberOfSamples)
 
+    # dimensions
+    @width = @numberOfSamples
+    @height = params.height
+
+    @resizeCanvases()
     @draw()
 
-    # set up click handler for click-to-seek
+    # set up click handler for click-to-seek or add annotation
+    # TODO: add annotation
     @wrapper.addEventListener 'mousedown', (e) =>
       if @seekHandler?
         percentageInContainer = e.offsetX / @width
@@ -113,12 +118,15 @@ class window.Visualizer
   resizeCanvases: ->
     # determine properties of ua
     @sppx = window.devicePixelRatio
-    @canvasBackingStorePixelRatio = @waveCanvasContext.backingStorePixelRatio || @waveCanvasContext.webkitBackingStorePixelRatio || 1
+    @canvasBackingStorePixelRatio = @waveCanvasContext.backingStorePixelRatio || @waveCanvasContext.webkitBackingStorePixelRatio || @waveCanvasContext.mozBackingStorePixelRatio || 1
 
     console.log "resizeCanvases: width = " + @width + ", height = " + @height + ", sppx = " + @sppx
 
     # if desired sppx doesn't match backing store pixel ratio, manually upscale canvas
     rescaleRatio = @sppx/@canvasBackingStorePixelRatio
+
+    @wrapper.style.height = @height + 'px'
+    @progressWrapper.style.height = @height + 'px'
 
     for canvas in @canvases
       # dom dimensions
