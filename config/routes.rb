@@ -5,6 +5,7 @@ PeddieSoundfile::Application.routes.draw do
   resources :courses do
     resources :assignments do
       resources :responses do
+        get 'score/edit', to: 'responses#edit_score'
         resources :annotations
       end
     end

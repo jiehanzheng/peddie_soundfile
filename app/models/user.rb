@@ -54,6 +54,14 @@ class User < ActiveRecord::Base
   def is_student?
     graduation_year != nil
   end
+
+  def teacher_of?(course)
+    in? course.teachers
+  end
+
+  def student_of?(course)
+    in? course.users
+  end
   
 
   private

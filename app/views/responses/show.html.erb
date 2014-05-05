@@ -1,20 +1,8 @@
 <% breadcrumb :response, @response %>
 
-<p id="notice"><%= notice %></p>
+</div><!-- /.container -->
 
-<p>
-  <strong>Assignment:</strong>
-  <%= @response.assignment_id %>
-</p>
-
-<p>
-  <strong>User:</strong>
-  <%= @response.user_id %>
-</p>
-
-<p>
-  <strong>Audio file:</strong>
-  <%= @response.audio_file_id %>
+<div class="well">
   <%= content_tag :div, { :id => 'main_sound_file',
                           :class => 'soundfile-player', 
                           :'data-annotation-list-src' => polymorphic_path([@response.assignment.course, @response.assignment, @response, :annotations], format: :json), 
@@ -22,21 +10,21 @@
     <span id="play">Play</span>
     <span id="pause">Pause</span>
   <% end %>
-</p>
+  </div>
 
-<p>
-  <strong>Notes:</strong>
-  <%= @response.notes %>
-</p>
+<div class="container">
 
-<p>
-  <strong>Teacher&rsquo;s comments:</strong>
-</p>
+<div class="col-md-7">
+  <h2>Teachers&rsquo;s annotations</h2>
+  <div class="list-group">
+    <%= render @response.annotations %>
+  </div>
+  <%= link_to 'Add annotation', new_polymorphic_path([@response.assignment.course, @response.assignment, @response, :annotation]) %> |
+  <%= link_to 'Edit', edit_course_assignment_response_path(@response.assignment.course, @response.assignment, @response) %> |
+  <%= link_to 'Back', [@response.assignment.course, @response.assignment, @response] %>
+</div>
 
-<ul>
-  <%#= render @response.annotations, locals: {response: @response} %>
-</ul>
-
-<%= link_to 'Add annotation', new_polymorphic_path([@response.assignment.course, @response.assignment, @response, :annotation]) %> |
-<%= link_to 'Edit', edit_course_assignment_response_path(@response.assignment.course, @response.assignment, @response) %> |
-<%= link_to 'Back', [@response.assignment.course, @response.assignment, @response] %>
+<div class="col-md-5">
+  <h2>Grade</h2>
+  <%= render 'score' %>
+</div>

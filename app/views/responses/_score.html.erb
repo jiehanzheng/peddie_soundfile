@@ -1,0 +1,8 @@
+<%= content_tag :div, id: @response.id.to_s + '_score' do %>
+  <p>
+    <%= if @response.score.nil? then 'Ungraded' else @response.score end %>
+    <% if current_user.teacher_of? @response.assignment.course %>
+      <%= link_to "Assign a grade", course_assignment_response_score_edit_path(@response.assignment.course, @response.assignment, @response), remote: true %>
+    <% end %>
+  </p>
+<% end %>

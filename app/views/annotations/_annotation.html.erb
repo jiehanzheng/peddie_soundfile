@@ -1,11 +1,5 @@
-<li>
-  <%= content_tag :div, { :class => 'soundfile-player',
-                          :'data-play-this-first' => '#main_sound_file audio',
-                          :'data-play-this-first-start' => annotation.start_second,
-                          :'data-play-this-first-end' => annotation.end_second.to_s } do %>
-    <%= content_tag :audio, nil, src: polymorphic_path(annotation.audio_file, format: :audio_file), 
-                                 controls: true, 
-                                 preload: true %>
-    <div id="audio_control"></div>
-  <% end %>
-</li>
+<a href="#" class="list-group-item">
+    <p class="list-group-item-text">
+     <%= annotation.start_second %>&ndash;<%= annotation.end_second %>
+    </p>
+</a>

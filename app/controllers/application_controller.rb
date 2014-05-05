@@ -22,14 +22,14 @@ class ApplicationController < ActionController::Base
     end
 
     def require_teacher(course)
-      unless current_user.in? course.teachers
+      unless current_user.teacher_of? course
         flash[:error] = "Only teachers can perform that action."
         redirect_to root_path
       end
     end
 
     def require_student(course)
-      unless current_user.in? course.users
+      unless current_user.student_of? course
         flash[:error] = "Only students/teachers of this course can perform that action."
         redirect_to root_path
       end
