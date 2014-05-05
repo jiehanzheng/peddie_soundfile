@@ -1,5 +1,6 @@
 class Response < ActiveRecord::Base
-
+  belongs_to :user
+  belongs_to :assignment
   belongs_to :audio_file, :dependent => :destroy
   has_many :annotations, :dependent => :destroy
 

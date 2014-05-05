@@ -1,0 +1,25 @@
+<% breadcrumb :assignment, @assignment %>
+
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Course:</strong>
+  <%= @assignment.course_id %>
+</p>
+
+<p>
+  <strong>Due date:</strong>
+  <%= @assignment.due_date %>
+</p>
+
+<div class="panel panel-default">
+  <div class="panel-heading">Submitted responses</div>
+  <div class="list-group">
+    <%= render @assignment.responses %>
+  </div>
+</div>
+
+<%= link_to 'Record New Response', new_course_assignment_response_path(:assignment_id => @assignment.id) %>
+
+<%= link_to 'Edit', edit_course_assignment_path(@assignment.course, @assignment) %> |
+<%= link_to 'Back', course_assignments_path %>

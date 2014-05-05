@@ -1,0 +1,29 @@
+<h1>Listing assignments</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Course</th>
+      <th>Due date</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @assignments.each do |assignment| %>
+      <tr>
+        <td><%= assignment.course_id %></td>
+        <td><%= assignment.due_date %></td>
+        <td><%= link_to 'Show', [assignment.course, assignment] %></td>
+        <td><%= link_to 'Edit', edit_course_assignment_path(assignment.course, assignment) %></td>
+        <td><%= link_to 'Destroy', [assignment.course, assignment], method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Assignment', new_course_assignment_path %>

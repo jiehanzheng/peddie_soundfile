@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20131120213215) do
+ActiveRecord::Schema.define(version: 20140504205317) do
 
   create_table "annotations", force: true do |t|
     t.integer  "response_id"
@@ -23,11 +23,34 @@ ActiveRecord::Schema.define(version: 20131120213215) do
     t.datetime "updated_at"
   end
 
+  create_table "assignments", force: true do |t|
+    t.integer  "course_id"
+    t.datetime "due_date"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.string   "name"
+  end
+
   create_table "audio_files", force: true do |t|
     t.string   "wav_name"
     t.string   "ogg_name"
     t.string   "path"
     t.integer  "convert_tries"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "courses", force: true do |t|
+    t.string   "name"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.text     "email_list"
+  end
+
+  create_table "enrollments", force: true do |t|
+    t.integer  "course_id"
+    t.integer  "user_id"
+    t.integer  "user_role"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -39,6 +62,27 @@ ActiveRecord::Schema.define(version: 20131120213215) do
     t.text     "notes"
     t.datetime "created_at"
     t.datetime "updated_at"
+  end
+
+  create_table "sessions", force: true do |t|
+    t.string   "session_id", null: false
+    t.text     "data"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "sessions", ["session_id"], name: "index_sessions_on_session_id", unique: true
+  add_index "sessions", ["updated_at"], name: "index_sessions_on_updated_at"
+
+  create_table "users", force: true do |t|
+    t.string   "provider"
+    t.string   "uid"
+    t.string   "first_name"
+    t.string   "last_name"
+    t.string   "email"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.boolean  "admin",      default: false
   end
 
 end

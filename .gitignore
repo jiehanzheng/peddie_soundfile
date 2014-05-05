@@ -20,8 +20,11 @@
 /log/*.log
 /tmp
 
-# Bower components
+# Bower components.
 /vendor/assets/components/*
 
 # Data folder containing sound files.
 /public/data
+
+# Ignore initializer for OmniAuth since it contains API secrets.
+/config/initializers/omniauth.rb

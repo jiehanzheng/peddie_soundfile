@@ -1,0 +1,37 @@
+<% breadcrumb :course, @course %>
+
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Name:</strong>
+  <%= @course.name %>
+</p>
+
+<p>
+  <strong>Teachers:</strong>
+  <%= debug @course.teachers %>
+</p>
+
+<p>
+  <strong>Students:</strong>
+  <%= debug @course.students %>
+</p>
+
+<div class="table-responsive">
+  <table class="table">
+    <thead>
+      <th>Name</th>
+      <th>Due Date</th>
+    </thead>
+    <tbody>
+      <%= render @course.assignments %>
+    </tbody>
+  </table>
+</div>
+
+
+
+<%= link_to 'New assignments', new_course_assignment_path(@course) %>
+
+<%= link_to 'Edit', edit_course_path(@course) %> |
+<%= link_to 'Back', courses_path %>

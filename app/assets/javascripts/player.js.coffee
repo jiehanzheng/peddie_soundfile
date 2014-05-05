@@ -1,14 +1,16 @@
 class window.Player
 
   queuedFragments: []
+  currentFragment: null
   resumeSecond: 0
+  playing: false
 
   constructor: (url, @container, params = {}) ->
     AudioContext = window.AudioContext || window.webkitAudioContext || window.mozAudioContext;
     @audioContext = new AudioContext()
 
     # download audio data
-    @loadSoundFile(url).then (@soundFileAudioData) => 
+    @loadSoundFile(url).then (@soundFileAudioData) =>
       # decode data into a buffer
       @audioContext.decodeAudioData @soundFileAudioData
       , (@soundFileAudioBuffer) => 
@@ -32,10 +34,6 @@ class window.Player
             annotation.audioBufferPromise = @loadSoundFile(annotation.sound_file).then (annotationAudioData) =>
               @audioContext.decodeAudioData annotationAudioData
               , (annotationAudioBuffer) =>
-                console.debug "decoded:"
-                console.debug annotationAudioBuffer
-                console.debug "to annotation:"
-                console.debug annotation
                 annotation.audioBuffer = annotationAudioBuffer
               , ->
                 console.error "Unable to decode annotation recording."
@@ -87,16 +85,17 @@ class window.Player
       if start > annotation.end_second
         continue  # if already past start, ignore this annotation
       else if start == annotation.end_second
-        fragment = new Fragment annotation.audioBuffer, 0, null
+        fragment = new Fragment annotation.audioBuffer, start, 0, null
+        fragment.setAnnotation annotation
         @queuedFragments.push fragment
       else
-        fragment = new Fragment @soundFileAudioBuffer, start, annotation.end_second
+        fragment = new Fragment @soundFileAudioBuffer, start, start, annotation.end_second
         @queuedFragments.push fragment
         unqueuedAnnotations.unshift annotation
         start = annotation.end_second
 
     # queue the rest of the audio file
-    @queuedFragments.push new Fragment @soundFileAudioBuffer, start, null
+    @queuedFragments.push new Fragment @soundFileAudioBuffer, start, start, null
 
     console.log "Queued fragments:"
     console.log @queuedFragments
@@ -104,13 +103,19 @@ class window.Player
 
 
   playNextFragment: =>
-    console.log "Remaining fragments:"
-    console.log @queuedFragments
+    console.groupCollapsed "Playing next unplayed fragment"
 
     if @queuedFragments.length
-      @queuedFragments.shift().play @audioContext, @playNextFragment
+      @currentFragment = @queuedFragments.shift()
+      console.log @currentFragment
+      @currentFragment.play @audioContext, @playNextFragment
+      @playing = true
     else
+      console.log 'No more fragments to play.'
       @resumeSecond = 0
+      @playing = false
+
+    console.groupEnd()
 
   play: =>
     console.group 'In play()'
@@ -128,17 +133,17 @@ class window.Player
 
 
   pause: =>
-    # record pause time
-    @lastPauseSecond = @getPlayedSeconds()
-
+    @resumeSecond = @currentFragment.getCurrentTimeInSoundfile()
+    console.log "Going to resume at " + @currentFragment.getCurrentTimeInSoundfile()
     @stopSource()
-    @playing = false
-
 
   stop: =>
+    @resumeSecond = 0
     @stopSource()
-    @lastPauseSecond = 0
-    @playing = false
+
+  stopSource: =>
+    @currentFragment.stop()
+    @queuedFragments = []
 
   getPlayedSeconds: =>
     if @playing
@@ -158,7 +163,7 @@ class window.Player
 
 
   getPlayedPercentage: ->
-    @getPlayedSeconds() / @soundFileAudioBuffer.duration
+    @currentFragment.getCurrentTimeInSoundfile() / @soundFileAudioBuffer.duration
 
 
   updateVisualizerContinuously: =>
@@ -170,15 +175,17 @@ class window.Player
 
 
   seek: (second) =>
-    @stop()
-    @lastPauseSecond = second
+    @stopSource()
+    @resumeSecond = second
     @play()
 
 
 class Fragment
   timeStarted: 0
 
-  constructor: (@audioBuffer, @start, @end) ->
+  constructor: (@audioBuffer, @startTimeInSoundfile, @start, @end) ->
+
+  setAnnotation: (@annotation) ->
 
   play: (@audioContext, callback) ->
     @source = @audioContext.createBufferSource()
@@ -188,6 +195,7 @@ class Fragment
 
     console.log "Playing"
     console.log @source
+    console.log "from " + @start + " to " + @end
 
     if @end == null
       @source.start 0, @start
@@ -202,8 +210,14 @@ class Fragment
     catch error
       console.error "Error stopping source: " + error
 
-  timeElapsed: ->
+  getTimeElapsed: ->
     @audioContext.currentTime - @timeStarted
+
+  getCurrentTimeInSoundfile: ->
+    if @annotation?
+      @startTimeInSoundfile
+    else
+      @startTimeInSoundfile + @getTimeElapsed()
 
 
 $ ->

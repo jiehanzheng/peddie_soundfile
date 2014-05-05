@@ -1,5 +1,4 @@
 class AudioFile < ActiveRecord::Base
-
   has_one :response
 
   before_validation :save_file
