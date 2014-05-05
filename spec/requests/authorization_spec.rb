@@ -3,7 +3,6 @@ require 'spec_helper'
 describe "Authorization" do
 
   before(:each) {
-    # populate database
     @course_1 = FactoryGirl.create(:course)
     @course_2 = FactoryGirl.create(:course)
 
@@ -111,18 +110,6 @@ describe "Authorization" do
   end
 
 
-  context "with a student enrolled in a course" do
-    before(:each) {
-      allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(@student)
-    }
-
-    it_should_behave_like "allows access to public pages"
-    it_should_behave_like "allows access to listings"
-    it_should_behave_like "allows student level access"
-    it_should_behave_like "denies teacher level access"
-  end
-
-
   context "with a student without any courses" do
     before(:each) {
       allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(@student_without_courses)
@@ -135,9 +122,33 @@ describe "Authorization" do
   end
 
 
+  context "with a student enrolled in a course" do
+    before(:each) {
+      allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(@student)
+    }
+
+    it_should_behave_like "allows access to public pages"
+    it_should_behave_like "allows access to listings"
+    it_should_behave_like "allows student level access"
+    it_should_behave_like "denies teacher level access"
+  end
+
+
   context "with a teacher" do
     before(:each) {
       allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(@teacher)
+    }
+
+    it_should_behave_like "allows access to public pages"
+    it_should_behave_like "allows access to listings"
+    it_should_behave_like "allows student level access"
+    it_should_behave_like "allows teacher level access"
+  end
+
+
+  context "with an admin" do
+    before(:each) {
+      allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(FactoryGirl.build(:user, admin: true))
     }
 
     it_should_behave_like "allows access to public pages"

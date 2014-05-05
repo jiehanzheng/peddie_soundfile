@@ -38,10 +38,11 @@ class ResponsesController < ApplicationController
     @response = Response.new(response_params)
     set_response_assignment
     require_student @response.assignment.course
+    set_response_user
 
     respond_to do |format|
       if @response.save
-        format.html { redirect_to @response, notice: 'Response was successfully created.' }
+        format.html { redirect_to [@response.assignment.course, @response.assignment, @response], notice: 'Response was successfully created.' }
       else
         format.html { render action: 'new' }
       end
@@ -53,7 +54,7 @@ class ResponsesController < ApplicationController
   def update
     respond_to do |format|
       if @response.update(response_params)
-        format.html { redirect_to @response, notice: 'Response was successfully updated.' }
+        format.html { redirect_to [@response.assignment.course, @response.assignment, @response], notice: 'Response was successfully updated.' }
       else
         format.html { render action: 'edit' }
       end
@@ -77,6 +78,10 @@ class ResponsesController < ApplicationController
 
     def set_response_assignment
       @response.assignment = Assignment.find(params[:assignment_id])
+    end
+
+    def set_response_user
+      @response.user = current_user
     end
 
     # Never trust parameters from the scary internet, only allow the white list through.

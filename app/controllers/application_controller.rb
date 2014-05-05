@@ -8,7 +8,7 @@ class ApplicationController < ActionController::Base
 
   protected
     def require_login
-      if !current_user
+      unless current_user
         flash[:warning] = "Please " + view_context.link_to("sign in", signin_path(request.original_url), :class => "alert-link") + " to access that page."
         redirect_to root_path
       end

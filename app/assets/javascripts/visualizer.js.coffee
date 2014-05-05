@@ -81,6 +81,21 @@ class window.Visualizer
 
     canvasX = 0.5
 
+    # Math.max.apply cannot be used here because of 
+    # Uncaught RangeError: Maximum call stack size exceeded 
+    console.time "Finding max"
+    max = 0
+    for i in [0..@points.length]
+      if @points[i] > max
+        max = @points[i]
+
+    console.timeEnd "Finding max"
+
+    # only allow canvas to be 60% full
+    audioScalingFactor = ((@height / 2) * 0.6) / max
+    console.log "max = " + max + ", audioScalingFactor = " + audioScalingFactor
+
+    console.time "Sampling and drawing on canvas"
     # loop through summary @points we want to produce and visualize
     for sampleId in [0...@numberOfSamples]
       # find corresponding start/end positions in audio file for this point
@@ -97,10 +112,10 @@ class window.Visualizer
       verticalStretch = @sppx
 
       # now draw lines
-      @waveCanvasContext.moveTo canvasX, @height * verticalStretch
-      @waveCanvasContext.lineTo canvasX, (@height - absMax * 300) * verticalStretch
-      @progressCanvasContext.moveTo canvasX, @height * verticalStretch
-      @progressCanvasContext.lineTo canvasX, (@height - absMax * 300) * verticalStretch
+      @waveCanvasContext.moveTo canvasX, (@height/2 - absMax * audioScalingFactor) * verticalStretch
+      @waveCanvasContext.lineTo canvasX, (@height/2 + absMax * audioScalingFactor) * verticalStretch
+      @progressCanvasContext.moveTo canvasX, (@height/2 - absMax * audioScalingFactor) * verticalStretch
+      @progressCanvasContext.lineTo canvasX, (@height/2 + absMax * audioScalingFactor) * verticalStretch
 
       canvasX++
 
@@ -109,6 +124,7 @@ class window.Visualizer
 
     @progressCanvasContext.closePath()
     @progressCanvasContext.stroke()
+    console.timeEnd "Sampling and drawing on canvas"
 
 
   setProgress: (percentage) ->
