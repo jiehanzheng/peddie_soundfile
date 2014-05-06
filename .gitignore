@@ -23,5 +23,6 @@
 # Data folder containing sound files.
 /public/data
 
-# Ignore initializer for OmniAuth since it contains API secrets.
+# Ignore secrets.
 /config/initializers/omniauth.rb
+/config/secrets.yml

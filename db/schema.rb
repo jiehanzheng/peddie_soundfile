@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140505030259) do
+ActiveRecord::Schema.define(version: 20140506030512) do
 
   create_table "annotations", force: true do |t|
     t.integer  "response_id"
@@ -33,10 +33,6 @@ ActiveRecord::Schema.define(version: 20140505030259) do
   end
 
   create_table "audio_files", force: true do |t|
-    t.string   "wav_name"
-    t.string   "ogg_name"
-    t.string   "path"
-    t.integer  "convert_tries"
     t.datetime "created_at"
     t.datetime "updated_at"
   end

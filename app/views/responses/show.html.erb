@@ -6,7 +6,7 @@
   <%= content_tag :div, { :id => 'main_sound_file',
                           :class => 'soundfile-player', 
                           :'data-annotation-list-src' => polymorphic_path([@response.assignment.course, @response.assignment, @response, :annotations], format: :json), 
-                          :'data-audio-src' => polymorphic_path(@response.audio_file, format: :audio_file) } do %>
+                          :'data-audio-src' => polymorphic_path(@response.audio_file, format: :ogg) } do %>
     <span id="play">Play</span>
     <span id="pause">Pause</span>
   <% end %>

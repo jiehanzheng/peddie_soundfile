@@ -1,4 +1,4 @@
-<%= form_for([@response, @annotation]) do |f| %>
+<%= form_for([@annotation.response.assignment.course, @annotation.response.assignment, @annotation.response, @annotation]) do |f| %>
   <% if @annotation.errors.any? %>
     <div id="error_explanation">
       <h2><%= pluralize(@annotation.errors.count, "error") %> prohibited this annotation from being saved:</h2>

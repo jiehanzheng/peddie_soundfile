@@ -11,8 +11,7 @@ class AudioFilesController < ApplicationController
   # GET /audio_files/1.download
   def show
     respond_to do |format|
-      format.html
-      format.audio_file { send_file @audio_file.path, :type => @audio_file.mime_type }
+      format.ogg { send_file @audio_file.path }
     end
   end
 

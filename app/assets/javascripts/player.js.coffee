@@ -6,6 +6,8 @@ class window.Player
   playing: false
 
   constructor: (url, @container, params = {}) ->
+    console.group "Player init"
+
     AudioContext = window.AudioContext || window.webkitAudioContext || window.mozAudioContext;
     @audioContext = new AudioContext()
 
@@ -26,7 +28,6 @@ class window.Player
     if params.annotationList?
       @loadJSON(params.annotationList).then (@annotations) =>
         if @annotations?
-          console.log @annotations
           console.log "Found " + @annotations.length + " annotation(s)."
 
         for annotation in @annotations
@@ -40,9 +41,10 @@ class window.Player
           
 
         Promise.all(@annotations.map (a) -> a.audioBufferPromise).then =>
-          console.log "annotations loaded"
           console.log @annotations
-          # visualize annotations
+          # TODO: visualize annotations
+
+    console.groupEnd "Player init"
 
 
   loadJSON: (url) ->
@@ -224,7 +226,7 @@ $ ->
   playerDivs = $ '.soundfile-player'
 
   if not playerDivs.length
-    console.debug "No player containers found.  Exiting..."
+    # console.debug "No player containers found.  Exiting..."
     return
 
   playerDivs.each (index, playerDiv) ->

@@ -4,13 +4,15 @@ class window.Visualizer
   height: 0
 
   # logical pixels per second
-  zoom: 8
+  zoom: 16
 
   # audio samples per logical pixel
   sppx: 1
 
 
   constructor: (@audioContext, @audioBuffer, @container, params = {}) ->
+    console.group "Visualizer init"
+
     # create wrapper to accomplish scrolling and mouse event handling
     @wrapper = document.createElement 'wave-visualizer'
     @wrapper.style.display = 'block'
@@ -66,12 +68,15 @@ class window.Visualizer
         if percentageInContainer >= 0 and percentageInContainer <= 1
           @seekHandler percentageInContainer * @audioDuration
 
+    console.groupEnd "Visualizer init"
+
 
   draw: ->
     # consider only left channel for now
     @points = @audioBuffer.getChannelData(0)
     
-    console.log "draw: " + @numberOfSamples + " sample values from " + @points.length + " points..."
+    console.group "draw"
+    console.log "Goal: " + @numberOfSamples + " sample values from " + @points.length + " points"
 
     @waveCanvasContext.strokeStyle = '#2A2522'
     @waveCanvasContext.beginPath()
@@ -91,9 +96,9 @@ class window.Visualizer
 
     console.timeEnd "Finding max"
 
-    # only allow canvas to be 60% full
-    audioScalingFactor = ((@height / 2) * 0.6) / max
-    console.log "max = " + max + ", audioScalingFactor = " + audioScalingFactor
+    # only allow canvas to be 60% filled
+    amplitudeScalingFactor = ((@height / 2) * 0.6) / max
+    console.log "max = " + max + ", amplitudeScalingFactor = " + amplitudeScalingFactor
 
     console.time "Sampling and drawing on canvas"
     # loop through summary @points we want to produce and visualize
@@ -112,10 +117,10 @@ class window.Visualizer
       verticalStretch = @sppx
 
       # now draw lines
-      @waveCanvasContext.moveTo canvasX, (@height/2 - absMax * audioScalingFactor) * verticalStretch
-      @waveCanvasContext.lineTo canvasX, (@height/2 + absMax * audioScalingFactor) * verticalStretch
-      @progressCanvasContext.moveTo canvasX, (@height/2 - absMax * audioScalingFactor) * verticalStretch
-      @progressCanvasContext.lineTo canvasX, (@height/2 + absMax * audioScalingFactor) * verticalStretch
+      @waveCanvasContext.moveTo canvasX, (@height/2 - absMax * amplitudeScalingFactor) * verticalStretch
+      @waveCanvasContext.lineTo canvasX, (@height/2 + absMax * amplitudeScalingFactor) * verticalStretch
+      @progressCanvasContext.moveTo canvasX, (@height/2 - absMax * amplitudeScalingFactor) * verticalStretch
+      @progressCanvasContext.lineTo canvasX, (@height/2 + absMax * amplitudeScalingFactor) * verticalStretch
 
       canvasX++
 
@@ -126,9 +131,11 @@ class window.Visualizer
     @progressCanvasContext.stroke()
     console.timeEnd "Sampling and drawing on canvas"
 
+    console.groupEnd "draw"
+
 
   setProgress: (percentage) ->
-    @progressWrapper.style.width = @waveCanvas.width / @sppx * percentage + 'px'
+    @progressWrapper.style.width = @width / @sppx * percentage + 'px'
     
 
   resizeCanvases: ->
