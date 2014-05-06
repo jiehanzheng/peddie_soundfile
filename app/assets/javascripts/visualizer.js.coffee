@@ -4,7 +4,7 @@ class window.Visualizer
   height: 0
 
   # logical pixels per second
-  zoom: 16
+  zoom: 60
 
   # audio samples per logical pixel
   sppx: 1

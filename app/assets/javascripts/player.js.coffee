@@ -72,7 +72,10 @@ class window.Player
 
 
   queueFragments: (start) ->
-    console.group "Queuing fragments:"
+    console.group "Queuing fragments"
+
+    @queuedFragments = []
+
     console.log "List of annotations:"
     console.log @annotations
     unqueuedAnnotations = @annotations[..]
@@ -81,23 +84,30 @@ class window.Player
     unqueuedAnnotations.sort (a, b) ->
       a.end_second - b.end_second
 
-    while unqueuedAnnotations.length
-      annotation = unqueuedAnnotations.shift()
+    cursor = start
 
-      if start > annotation.end_second
-        continue  # if already past start, ignore this annotation
-      else if start == annotation.end_second
-        fragment = new Fragment annotation.audioBuffer, start, 0, null
+    while unqueuedAnnotations.length
+      console.log "cursor = " + cursor
+      annotation = unqueuedAnnotations.shift()
+      console.log "annotation.end_second = " + annotation.end_second
+
+      if cursor > annotation.end_second
+        console.log "skip annotation"
+        continue  # if already past cursor, ignore this annotation
+      else if cursor == annotation.end_second
+        fragment = new Fragment annotation.audioBuffer, cursor, 0, null
         fragment.setAnnotation annotation
         @queuedFragments.push fragment
+        console.log "queuing annotation"
       else
-        fragment = new Fragment @soundFileAudioBuffer, start, start, annotation.end_second
+        fragment = new Fragment @soundFileAudioBuffer, cursor, cursor, annotation.end_second
         @queuedFragments.push fragment
         unqueuedAnnotations.unshift annotation
-        start = annotation.end_second
+        console.log "playing sf from " + cursor + " to " + annotation.end_second
+        cursor = annotation.end_second
 
     # queue the rest of the audio file
-    @queuedFragments.push new Fragment @soundFileAudioBuffer, start, start, null
+    @queuedFragments.push new Fragment @soundFileAudioBuffer, cursor, cursor, null
 
     console.log "Queued fragments:"
     console.log @queuedFragments
@@ -105,13 +115,15 @@ class window.Player
 
 
   playNextFragment: =>
-    console.groupCollapsed "Playing next unplayed fragment"
+    console.group "Playing next unplayed fragment"
+    if !@playing
+      console.log "State is 'not playing', halting..."
+      return
 
     if @queuedFragments.length
       @currentFragment = @queuedFragments.shift()
       console.log @currentFragment
       @currentFragment.play @audioContext, @playNextFragment
-      @playing = true
     else
       console.log 'No more fragments to play.'
       @resumeSecond = 0
@@ -121,11 +133,9 @@ class window.Player
 
   play: =>
     console.group 'In play()'
-
     @queueFragments @resumeSecond
-
-    debugger
-
+    # debugger
+    @playing = true
     @playNextFragment()
 
     if @visualizer?
@@ -146,6 +156,7 @@ class window.Player
   stopSource: =>
     @currentFragment.stop()
     @queuedFragments = []
+    @playing = false
 
   getPlayedSeconds: =>
     if @playing
@@ -178,8 +189,13 @@ class window.Player
 
   seek: (second) =>
     @stopSource()
-    @resumeSecond = second
-    @play()
+
+    # XXX dirty work around--
+    # I don't understand why adding the timeout would make it work
+    setTimeout =>
+      @resumeSecond = second
+      @play()
+    , 100
 
 
 class Fragment
@@ -202,7 +218,7 @@ class Fragment
     if @end == null
       @source.start 0, @start
     else
-      @source.start 0, @start, @end - @start
+      @source.start 0, @start, (@end - @start)
 
     @timeStarted = @audioContext.currentTime
 
