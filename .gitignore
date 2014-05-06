@@ -22,6 +22,7 @@
 
 # Data folder containing sound files.
 /public/data
+/uploads/audio_files
 
 # Ignore secrets.
 /config/initializers/omniauth.rb
