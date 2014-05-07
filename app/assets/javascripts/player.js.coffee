@@ -176,6 +176,7 @@ class window.Player
 
   updateVisualizerContinuously: =>
     @visualizer.setProgress @getPlayedPercentage()
+    @visualizer.ensureProcessIndicatorVisibility()
 
     if @playing
       requestAnimationFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame

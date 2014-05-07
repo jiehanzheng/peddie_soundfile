@@ -161,7 +161,13 @@ class window.Visualizer
 
   setProgress: (percentage) ->
     @progressWrapper.style.width = @wrapper.scrollWidth * percentage + 'px'
-    
+
+
+  ensureProcessIndicatorVisibility: =>
+    if @progressWrapper.clientWidth < @wrapper.scrollLeft or  # left, off screen
+    @progressWrapper.clientWidth > (@wrapper.scrollLeft + @wrapper.clientWidth * 0.8)  # right, off screen
+      @wrapper.scrollLeft = @progressWrapper.clientWidth
+
 
   resizeCanvases: ->
     # determine properties of ua
