@@ -1,0 +1,19 @@
+body.responses {
+  &.responses_show {
+    #annotations {
+      .annotation-item {
+        .play-icon {
+          display: none;
+        }
+
+        &:hover {
+          .play-icon {
+            display: block;
+          }
+        }
+
+        cursor: pointer;
+      }
+    }
+  }
+}

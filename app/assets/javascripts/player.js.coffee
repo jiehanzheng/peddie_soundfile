@@ -44,6 +44,8 @@ class window.Player
           console.log @annotations
           # TODO: visualize annotations
 
+    PeddieSoundfile.player = @
+
     console.groupEnd "Player init"
 
 
@@ -113,6 +115,7 @@ class window.Player
     console.group "Checking unplayed fragment"
     if !@playing
       console.log "State is 'not playing', halting..."
+      console.groupEnd()
       return
 
     if @queuedFragments.length
@@ -180,7 +183,6 @@ class window.Player
     if @playing
       requestAnimationFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame
       requestAnimationFrame @updateVisualizerContinuously
-
 
   seek: (second) =>
     console.group "seek: " + second

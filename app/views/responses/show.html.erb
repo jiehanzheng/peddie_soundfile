@@ -16,7 +16,7 @@
 
 <div class="col-md-7">
   <h2>Teachers&rsquo;s annotations</h2>
-  <div class="list-group">
+  <div id="annotations" class="list-group">
     <%= render @response.annotations %>
   </div>
   <%= link_to 'Add annotation', new_polymorphic_path([@response.assignment.course, @response.assignment, @response, :annotation]) %> |

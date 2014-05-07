@@ -1,5 +1,8 @@
-<a href="#" class="list-group-item">
+<%= content_tag :a, options = { :class => 'annotation-item list-group-item', :data => { :'start-second' => annotation.start_second }, :role => :button } do %>
     <p class="list-group-item-text">
-     <%= annotation.start_second %>&ndash;<%= annotation.end_second %>
+      <%= annotation.start_second %>&ndash;<%= annotation.end_second %>
+      <span class="play-icon pull-right">
+        <span class="glyphicon glyphicon-play"></span>
+      </span>
     </p>
-</a>
+<% end %>

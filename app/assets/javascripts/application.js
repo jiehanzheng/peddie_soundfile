@@ -17,3 +17,10 @@
 //= require player
 //= require visualizer
 //= require soundfile_recorder
+
+
+window.PeddieSoundfile = {}
+
+window.PeddieSoundfile.inControllerAction = function(controller, action) {
+  return $('.' + controller + '_' + action).length;
+}
