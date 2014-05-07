@@ -18,6 +18,7 @@ class window.Player
       , (@soundFileAudioBuffer) => 
         @visualizer = new Visualizer @audioContext, @soundFileAudioBuffer, @container, height: 200
         @visualizer.setSeekHandler @seek
+        @visualizer.setTimestampGetter @getTimestamp
       , ->
         console.error "Unable to decode downloaded audio data."
       
@@ -87,23 +88,18 @@ class window.Player
     cursor = start
 
     while unqueuedAnnotations.length
-      console.log "cursor = " + cursor
       annotation = unqueuedAnnotations.shift()
-      console.log "annotation.end_second = " + annotation.end_second
 
       if cursor > annotation.end_second
-        console.log "skip annotation"
         continue  # if already past cursor, ignore this annotation
       else if cursor == annotation.end_second
         fragment = new Fragment annotation.audioBuffer, cursor, 0, null
         fragment.setAnnotation annotation
         @queuedFragments.push fragment
-        console.log "queuing annotation"
       else
         fragment = new Fragment @soundFileAudioBuffer, cursor, cursor, annotation.end_second
         @queuedFragments.push fragment
         unqueuedAnnotations.unshift annotation
-        console.log "playing sf from " + cursor + " to " + annotation.end_second
         cursor = annotation.end_second
 
     # queue the rest of the audio file
@@ -196,6 +192,10 @@ class window.Player
       @resumeSecond = second
       @play()
     , 100
+
+
+  getTimestamp: (percentage) =>
+    @soundFileAudioBuffer.duration * percentage
 
 
 class Fragment

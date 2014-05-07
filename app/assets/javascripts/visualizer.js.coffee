@@ -68,6 +68,29 @@ class window.Visualizer
         if percentageInContainer >= 0 and percentageInContainer <= 1
           @seekHandler percentageInContainer * @audioDuration
 
+    @waveCanvas.addEventListener 'mousemove', (e) =>
+      @needle.style.left = e.offsetX + 'px'
+      @needleLabel.style.left = (e.offsetX - 12) + 'px'
+      @needleLabel.innerHTML = @timestampGetter(e.offsetX / @waveCanvas.width).toFixed(2) + 's'
+
+    # progress indicator needle
+    @needle = document.createElement 'div'
+    @needle.style.width = '1px'
+    @needle.style.height = (@height - 20) + 'px'
+    @needle.style.position = 'absolute'
+    @needle.style.zIndex = 3
+    @needle.style.backgroundColor = '#999'
+    @needle.style.left = '-100px'
+    @wrapper.appendChild @needle
+
+    # progress timestamp label
+    @needleLabel = document.createElement 'div'
+    @needleLabel.style.position = 'absolute'
+    @needleLabel.zIndex = 3
+    @needleLabel.style.top = (@height - 20) + 'px'
+    @needleLabel.style.left = '0px'
+    @wrapper.appendChild @needleLabel
+
     console.groupEnd "Visualizer init"
 
 
@@ -162,4 +185,6 @@ class window.Visualizer
 
 
   setSeekHandler: (@seekHandler) ->
+
+  setTimestampGetter: (@timestampGetter) ->
 
