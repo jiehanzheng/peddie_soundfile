@@ -163,7 +163,7 @@ class window.Visualizer
     @progressWrapper.style.width = @wrapper.scrollWidth * percentage + 'px'
 
 
-  ensureProcessIndicatorVisibility: =>
+  ensureProgressIndicatorVisibility: =>
     if @progressWrapper.clientWidth < @wrapper.scrollLeft or  # left, off screen
     @progressWrapper.clientWidth > (@wrapper.scrollLeft + @wrapper.clientWidth * 0.8)  # right, off screen
       @wrapper.scrollLeft = @progressWrapper.clientWidth
@@ -172,7 +172,7 @@ class window.Visualizer
   resizeCanvases: ->
     # determine properties of ua
     @sppx = window.devicePixelRatio
-    console.log "resizeCanvases: width = " + @width + ", height = " + @height + ", sppx = " + @sppx
+    console.log "resizeCanvases: height = " + @height + ", sppx = " + @sppx
 
     @wrapper.style.height = @height + 'px'
     @progressWrapper.style.height = @height + 'px'

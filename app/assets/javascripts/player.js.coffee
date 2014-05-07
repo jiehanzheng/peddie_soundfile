@@ -110,7 +110,7 @@ class window.Player
 
 
   playNextFragment: =>
-    console.group "Playing next unplayed fragment"
+    console.group "Checking unplayed fragment"
     if !@playing
       console.log "State is 'not playing', halting..."
       return
@@ -127,9 +127,8 @@ class window.Player
     console.groupEnd()
 
   play: =>
-    console.group 'In play()'
     @queueFragments @resumeSecond
-    # debugger
+    
     @playing = true
     @playNextFragment()
 
@@ -141,7 +140,7 @@ class window.Player
 
   pause: =>
     @resumeSecond = @currentFragment.getCurrentTimeInSoundfile()
-    console.log "Going to resume at " + @currentFragment.getCurrentTimeInSoundfile()
+    console.log 'Pausing at ' + @resumeSecond
     @stopSource()
 
   stop: =>
@@ -176,7 +175,7 @@ class window.Player
 
   updateVisualizerContinuously: =>
     @visualizer.setProgress @getPlayedPercentage()
-    @visualizer.ensureProcessIndicatorVisibility()
+    @visualizer.ensureProgressIndicatorVisibility()
 
     if @playing
       requestAnimationFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame
@@ -184,7 +183,7 @@ class window.Player
 
 
   seek: (second) =>
-    console.debug "seek: " + second
+    console.group "seek: " + second
 
     @stopSource()
 
@@ -194,6 +193,7 @@ class window.Player
     setTimeout =>
       @resumeSecond = second
       @play()
+      console.groupEnd()
     , 100
 
 
