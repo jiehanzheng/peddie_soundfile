@@ -1,6 +1,5 @@
 class window.Visualizer
 
-  width: 0
   height: 0
 
   # logical pixels per second
@@ -22,14 +21,11 @@ class window.Visualizer
     @wrapper.style.overflowX = 'scroll'
     @container.appendChild @wrapper
 
-    # # another wrapper for mouse events
-    # @canvasWrapper = document.createElement 'div'
-    # @wrapper.appendChild @canvasWrapper
-
     # create wave canvas for wave for the file
     @waveCanvas = document.createElement 'canvas'
-    @waveCanvas.style.position = 'relative'
+    @waveCanvas.style.position = 'absolute'
     @waveCanvas.style.zIndex = 1
+    @waveCanvas.style.top = '0'
     @waveCanvasContext = @waveCanvas.getContext '2d'
     @wrapper.appendChild @waveCanvas
 
@@ -58,28 +54,25 @@ class window.Visualizer
     @sampleSize = Math.floor(@audioBuffer.length / @numberOfSamples)
 
     # dimensions
-    @width = @numberOfSamples
     @height = params.height
 
     @resizeCanvases()
     @draw()
 
-    # set up click handler for click-to-seek or add annotation
+    # set up click handler for click-to-seek
     @wrapper.addEventListener 'mousedown', (e) =>
       if @seekHandler?
-        console.log e
-        console.log "e.offsetX = " + e.offsetX + ", canvas width = " + @waveCanvas.width
-        percentageInContainer = e.offsetX / @waveCanvas.width
+        percentageInContainer = e.offsetX / @wrapper.scrollWidth
         if percentageInContainer >= 0 and percentageInContainer <= 1
           @seekHandler percentageInContainer * @audioDuration
 
+    # mouse-following needle events
     @wrapper.addEventListener 'mousemove', (e) =>
-      @needle.style.left = e.offsetX + 1 + 'px'  # XXX workaround to have wrapper receive proper events
+      @needle.style.left = e.offsetX + 'px'
       @needleLabel.style.left = (e.offsetX - 12) + 'px'
-      @needleLabel.innerHTML = (@audioDuration * (e.offsetX / @waveCanvas.width)).toFixed(2) + 's'
+      @needleLabel.innerHTML = (@audioDuration * (e.offsetX / @wrapper.scrollWidth)).toFixed(2) + 's'
 
-
-    # mouseover indicator needle
+    # mouse-following indicator needle
     @needle = document.createElement 'div'
     @needle.style.width = '1px'
     @needle.style.height = (@height - 20) + 'px'
@@ -88,14 +81,16 @@ class window.Visualizer
     @needle.style.backgroundColor = '#999'
     @needle.style.top = '0'
     @needle.style.left = '-100px'
+    @needle.style.pointerEvents = 'none'
     @wrapper.appendChild @needle
 
-    # mouseover timestamp label
+    # mouse-following timestamp label
     @needleLabel = document.createElement 'div'
     @needleLabel.style.position = 'absolute'
     @needleLabel.zIndex = 3
     @needleLabel.style.top = (@height - 20) + 'px'
     @needleLabel.style.left = '0px'
+    @needleLabel.style.pointerEvents = 'none'
     @wrapper.appendChild @needleLabel
 
     console.groupEnd "Visualizer init"
@@ -161,34 +156,29 @@ class window.Visualizer
     @progressCanvasContext.stroke()
     console.timeEnd "Sampling and drawing on canvas"
 
-    console.groupEnd "draw"
+    console.groupEnd()
 
 
   setProgress: (percentage) ->
-    @progressWrapper.style.width = @width / @sppx * percentage + 'px'
+    @progressWrapper.style.width = @wrapper.scrollWidth * percentage + 'px'
     
 
   resizeCanvases: ->
     # determine properties of ua
     @sppx = window.devicePixelRatio
-    @canvasBackingStorePixelRatio = @waveCanvasContext.backingStorePixelRatio || @waveCanvasContext.webkitBackingStorePixelRatio || @waveCanvasContext.mozBackingStorePixelRatio || 1
-
     console.log "resizeCanvases: width = " + @width + ", height = " + @height + ", sppx = " + @sppx
-
-    # if desired sppx doesn't match backing store pixel ratio, manually upscale canvas
-    rescaleRatio = @sppx/@canvasBackingStorePixelRatio
 
     @wrapper.style.height = @height + 'px'
     @progressWrapper.style.height = @height + 'px'
 
     for canvas in @canvases
       # dom dimensions
-      canvas.height = @height * rescaleRatio
-      canvas.width = @width * rescaleRatio
+      canvas.height = @height * @sppx
+      canvas.width = @numberOfSamples
 
       # css dimensions
       canvas.style.height = @height + 'px'
-      canvas.style.width = @width + 'px'
+      canvas.style.width = (@numberOfSamples / @sppx) + 'px'
 
 
   setSeekHandler: (@seekHandler) ->
