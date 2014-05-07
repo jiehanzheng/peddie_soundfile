@@ -18,7 +18,6 @@ class window.Player
       , (@soundFileAudioBuffer) => 
         @visualizer = new Visualizer @audioContext, @soundFileAudioBuffer, @container, height: 200
         @visualizer.setSeekHandler @seek
-        @visualizer.setTimestampGetter @getTimestamp
       , ->
         console.error "Unable to decode downloaded audio data."
       
@@ -73,7 +72,7 @@ class window.Player
 
 
   queueFragments: (start) ->
-    console.group "Queuing fragments"
+    console.group "Queuing fragments from " + start
 
     @queuedFragments = []
 
@@ -184,7 +183,10 @@ class window.Player
 
 
   seek: (second) =>
+    console.debug "seek: " + second
+
     @stopSource()
+
 
     # XXX dirty work around--
     # I don't understand why adding the timeout would make it work
@@ -192,10 +194,6 @@ class window.Player
       @resumeSecond = second
       @play()
     , 100
-
-
-  getTimestamp: (percentage) =>
-    @soundFileAudioBuffer.duration * percentage
 
 
 class Fragment

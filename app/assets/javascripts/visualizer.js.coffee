@@ -13,9 +13,8 @@ class window.Visualizer
   constructor: (@audioContext, @audioBuffer, @container, params = {}) ->
     console.group "Visualizer init"
 
-    # create wrapper to accomplish scrolling and mouse event handling
-    @wrapper = document.createElement 'wave-visualizer'
-    @wrapper.style.display = 'block'
+    # create wrapper to accomplish scrolling
+    @wrapper = document.createElement 'div'
     @wrapper.style.position = 'relative'
     @wrapper.style.width = '100%'
     @wrapper.style.height = @height + 'px'
@@ -23,9 +22,13 @@ class window.Visualizer
     @wrapper.style.overflowX = 'scroll'
     @container.appendChild @wrapper
 
+    # # another wrapper for mouse events
+    # @canvasWrapper = document.createElement 'div'
+    # @wrapper.appendChild @canvasWrapper
+
     # create wave canvas for wave for the file
     @waveCanvas = document.createElement 'canvas'
-    @waveCanvas.style.position = 'absolute'
+    @waveCanvas.style.position = 'relative'
     @waveCanvas.style.zIndex = 1
     @waveCanvasContext = @waveCanvas.getContext '2d'
     @wrapper.appendChild @waveCanvas
@@ -35,6 +38,7 @@ class window.Visualizer
     @progressWrapper.style.width = '0'
     @progressWrapper.style.height = @height + 'px'
     @progressWrapper.style.position = 'absolute'
+    @progressWrapper.style.top = '0'
     @progressWrapper.style.zIndex = 2
     @progressWrapper.style.overflow = 'hidden'
     @progressWrapper.style.borderRight = '2px solid red'
@@ -61,29 +65,32 @@ class window.Visualizer
     @draw()
 
     # set up click handler for click-to-seek or add annotation
-    # TODO: add annotation
     @wrapper.addEventListener 'mousedown', (e) =>
       if @seekHandler?
-        percentageInContainer = e.offsetX / @width
+        console.log e
+        console.log "e.offsetX = " + e.offsetX + ", canvas width = " + @waveCanvas.width
+        percentageInContainer = e.offsetX / @waveCanvas.width
         if percentageInContainer >= 0 and percentageInContainer <= 1
           @seekHandler percentageInContainer * @audioDuration
 
-    @waveCanvas.addEventListener 'mousemove', (e) =>
-      @needle.style.left = e.offsetX + 'px'
+    @wrapper.addEventListener 'mousemove', (e) =>
+      @needle.style.left = e.offsetX + 1 + 'px'  # XXX workaround to have wrapper receive proper events
       @needleLabel.style.left = (e.offsetX - 12) + 'px'
-      @needleLabel.innerHTML = @timestampGetter(e.offsetX / @waveCanvas.width).toFixed(2) + 's'
+      @needleLabel.innerHTML = (@audioDuration * (e.offsetX / @waveCanvas.width)).toFixed(2) + 's'
 
-    # progress indicator needle
+
+    # mouseover indicator needle
     @needle = document.createElement 'div'
     @needle.style.width = '1px'
     @needle.style.height = (@height - 20) + 'px'
     @needle.style.position = 'absolute'
     @needle.style.zIndex = 3
     @needle.style.backgroundColor = '#999'
+    @needle.style.top = '0'
     @needle.style.left = '-100px'
     @wrapper.appendChild @needle
 
-    # progress timestamp label
+    # mouseover timestamp label
     @needleLabel = document.createElement 'div'
     @needleLabel.style.position = 'absolute'
     @needleLabel.zIndex = 3
@@ -185,6 +192,4 @@ class window.Visualizer
 
 
   setSeekHandler: (@seekHandler) ->
-
-  setTimestampGetter: (@timestampGetter) ->
 
