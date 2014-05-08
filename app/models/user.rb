@@ -1,6 +1,7 @@
 class User < ActiveRecord::Base
   has_many :enrollments
   has_many :courses, through: :enrollments
+  has_many :responses
 
 
   def self.from_auth_hash(auth_hash)

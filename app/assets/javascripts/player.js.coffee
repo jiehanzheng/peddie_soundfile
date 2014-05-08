@@ -136,7 +136,7 @@ class window.Player
     @playNextFragment()
 
     if @visualizer?
-      @updateVisualizerContinuously()
+      @updateUI()
 
     console.groupEnd()
 
@@ -176,13 +176,13 @@ class window.Player
     @currentFragment.getCurrentTimeInSoundfile() / @soundFileAudioBuffer.duration
 
 
-  updateVisualizerContinuously: =>
+  updateUI: =>
     @visualizer.setProgress @getPlayedPercentage()
     @visualizer.ensureProgressIndicatorVisibility()
 
     if @playing
       requestAnimationFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame
-      requestAnimationFrame @updateVisualizerContinuously
+      requestAnimationFrame @updateUI
 
   seek: (second) =>
     console.group "seek: " + second

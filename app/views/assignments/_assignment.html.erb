@@ -1,4 +1,5 @@
 <tr>
   <td><%= link_to assignment.name, [assignment.course, assignment] %></td>
   <td><%= assignment.due_date %></td>
+  <td><%= assignment.try(:points_possible) %></td>
 </tr>

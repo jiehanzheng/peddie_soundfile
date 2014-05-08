@@ -1,5 +1,6 @@
 class EnrollmentsController < ApplicationController
   before_action :set_enrollment, only: [:show, :edit, :update, :destroy]
+  before_action :require_admin
 
   # GET /enrollments
   # GET /enrollments.json

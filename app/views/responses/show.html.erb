@@ -2,17 +2,39 @@
 
 </div><!-- /.container -->
 
-<div class="well">
-  <%= content_tag :div, { :id => 'main_sound_file',
-                          :class => 'soundfile-player', 
-                          :'data-annotation-list-src' => polymorphic_path([@response.assignment.course, @response.assignment, @response, :annotations], format: :json), 
-                          :'data-audio-src' => polymorphic_path(@response.audio_file, format: :ogg) } do %>
-    <span id="play">Play</span>
-    <span id="pause">Pause</span>
-  <% end %>
+<div class="player">
+  <div class="well">
+    <%= content_tag :div, { :id => 'main_sound_file',
+                            :class => 'soundfile-player', 
+                            :'data-annotation-list-src' => polymorphic_path([@response.assignment.course, @response.assignment, @response, :annotations], format: :json), 
+                            :'data-audio-src' => polymorphic_path(@response.audio_file, format: :ogg) } do %>
+      <span id="play">Play</span>
+      <span id="pause">Pause</span>
+    <% end %>
   </div>
 
+  <div class="control">
+    <button type="button" class="btn btn-primary play-pause-button">
+      <div class="play-button">
+        <span class="glyphicon glyphicon-play"></span>
+        Play
+      </div>
+      <div class="pause-button">
+        <span class="glyphicon glyphicon-pause"></span>
+        Pause
+      </div>
+    </button>
+    <button type="button" class="btn btn-default">
+      <span class="glyphicon glyphicon-stop"></span>
+      Stop
+    </button>
+  </div>
+</div>
+
+<hr>
+
 <div class="container">
+
 
 <div class="col-md-7">
   <h2>Teachers&rsquo;s annotations</h2>

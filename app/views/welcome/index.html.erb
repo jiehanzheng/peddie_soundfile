@@ -1,2 +1,19 @@
-<h1>Welcome#index</h1>
-<p>Find me in app/views/welcome/index.html.erb</p>
+<div class="col-md-9">
+  <h2>To-do <small>Assignments for which you haven&rsquo;t recorded a sound file yet</h2>
+  <%= debug @todo_assignments %>
+
+  <h2>Recently graded responses</h2>
+  <%= debug @recently_graded_assignments %>
+
+  <h2>My responses <small>List of all sound files you&rsquo;ve recoded this year</small></h2>
+  
+</div>
+
+<div class="col-md-3">
+  <h2>My classes</h2>
+  <ul class="list-group">
+    <% current_user.courses.each do |course| %>
+      <%= link_to course.name, course, :class => 'list-group-item' %>
+    <% end %>
+  </ul>
+</div>

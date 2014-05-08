@@ -1,0 +1,21 @@
+.player {
+  .control {
+    text-align: center;
+
+    .play-pause-button {
+      &.paused {
+        .play-button {
+          display: none;
+        }
+
+        .pause-button {
+          display: block;
+        }
+      }
+
+      .pause-button {
+        display: none;
+      }
+    }
+  }
+}

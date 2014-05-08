@@ -1,37 +1,41 @@
 <% breadcrumb :course, @course %>
 
-<p id="notice"><%= notice %></p>
-
-<p>
-  <strong>Name:</strong>
-  <%= @course.name %>
-</p>
-
-<p>
-  <strong>Teachers:</strong>
-  <%= debug @course.teachers %>
-</p>
-
-<p>
-  <strong>Students:</strong>
-  <%= debug @course.students %>
-</p>
-
-<div class="table-responsive">
-  <table class="table">
-    <thead>
-      <th>Name</th>
-      <th>Due Date</th>
-    </thead>
-    <tbody>
-      <%= render @course.assignments %>
-    </tbody>
-  </table>
+<div class="page-header">
+  <h1><%= @course.name %> <small>Taught by <%= name_list @course.teachers %></small></h1>
 </div>
 
+<div class="col-md-9">
+  <h2>
+    Assignments
+    <%= link_to '<span class="glyphicon glyphicon-plus"></span>'.html_safe + ' New assignment', new_course_assignment_path(@course), :class => 'btn btn-primary btn-sm' %>
+  </h2>
+  <div class="table-responsive">
+    <table class="table">
+      <thead>
+        <th>Name</th>
+        <th>Due Date</th>
+        <th>Points</th>
+      </thead>
+      <tbody>
+        <%= render @course.assignments.most_recent_first %>
+      </tbody>
+    </table>
+  </div>
+</div>
 
+<div class="col-md-3">
+  <h2>Students</h2>
+  <div class="media">
+    <a class="pull-left" href="#">
+      <img class="media-object" src="..." alt="...">
+    </a>
+    <div class="media-body">
+      <h4 class="media-heading">Media heading</h4>
+      ...
+    </div>
+  </div>
+</div>
 
-<%= link_to 'New assignments', new_course_assignment_path(@course) %>
 
 <%= link_to 'Edit', edit_course_path(@course) %> |
 <%= link_to 'Back', courses_path %>
