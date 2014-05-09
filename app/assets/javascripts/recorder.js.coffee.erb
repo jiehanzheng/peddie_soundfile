@@ -68,6 +68,9 @@ class window.Recorder
           command: 'exportWAV'
           type: 'audio/wav'
 
+        @wavGenerator.postMessage
+          command: 'clear'
+
     $(@form).submit (event) =>
       event.preventDefault()
 
@@ -80,9 +83,6 @@ class window.Recorder
       console.log 'Appending audio file as ' + blobFieldName + ' and submitting form...'
       formData = new FormData @form
       formData.append @container.dataset.blobFieldName, $(selectedItem).data('wavBlob')
-
-      console.log formData
-      # debugger
 
       request = new XMLHttpRequest()
 
