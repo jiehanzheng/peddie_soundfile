@@ -62,7 +62,7 @@ class window.Visualizer
     # set up click handler for click-to-seek
     @wrapper.addEventListener 'mousedown', (e) =>
       if @seekHandler?
-        percentageInContainer = e.offsetX / @wrapper.scrollWidth
+        percentageInContainer = e.offsetX / @waveCanvas.clientWidth
         if percentageInContainer >= 0 and percentageInContainer <= 1
           @seekHandler percentageInContainer * @audioDuration
 
@@ -70,7 +70,7 @@ class window.Visualizer
     @wrapper.addEventListener 'mousemove', (e) =>
       @needle.style.left = e.offsetX + 'px'
       @needleLabel.style.left = (e.offsetX - 12) + 'px'
-      @needleLabel.innerHTML = (@audioDuration * (e.offsetX / @wrapper.scrollWidth)).toFixed(2) + 's'
+      @needleLabel.innerHTML = (@audioDuration * (e.offsetX / @waveCanvas.clientWidth)).toFixed(2) + 's'
 
     # mouse-following indicator needle
     @needle = document.createElement 'div'
@@ -93,7 +93,7 @@ class window.Visualizer
     @needleLabel.style.pointerEvents = 'none'
     @wrapper.appendChild @needleLabel
 
-    console.groupEnd "Visualizer init"
+    console.groupEnd()
 
 
   draw: ->
@@ -160,7 +160,7 @@ class window.Visualizer
 
 
   setProgress: (percentage) ->
-    @progressWrapper.style.width = @wrapper.scrollWidth * percentage + 'px'
+    @progressWrapper.style.width = @waveCanvas.clientWidth * percentage + 'px'
 
 
   ensureProgressIndicatorVisibility: =>

@@ -12,6 +12,6 @@ class WelcomeController < ApplicationController
        LEFT OUTER JOIN responses ON users.id = responses.user_id AND assignments.id = responses.assignment_id'
     ).where(responses: {id: nil}, users: {id: current_user.id})
     
-    @recently_graded_assignments = current_user.responses.order(updated_at: :desc).where.not(score: nil).limit(5)
+    @recently_graded_responses = current_user.responses.order(updated_at: :desc).where.not(score: nil).limit(5)
   end
 end

@@ -1,11 +1,65 @@
 <div class="col-md-9">
-  <h2>To-do <small>Assignments for which you haven&rsquo;t recorded a sound file yet</h2>
-  <%= debug @todo_assignments %>
+  <h2>To-do <small>Assignments for which you haven&rsquo;t recorded a sound file yet</small></h2>
+  <div class="table-responsive">
+    <table class="table">
+      <thead>
+        <th>Course</th>
+        <th>Name</th>
+        <th>Due Date</th>
+        <th>Points</th>
+      </thead>
+      <tbody>
+        <% @todo_assignments.each do |assignment| %>
+          <tr>
+            <td><%= assignment.course.name %></td>
+            <td><%= link_to assignment.name, [assignment.course, assignment] %></td>
+            <td><%= assignment.due_date %></td>
+            <td><%= assignment.try(:points_possible) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
 
-  <h2>Recently graded responses</h2>
-  <%= debug @recently_graded_assignments %>
+  <h2>Recently graded sound files</h2>
+  <div class="table-responsive">
+    <table class="table">
+      <thead>
+        <th>Course</th>
+        <th>Assignment</th>
+        <th>Score</th>
+      </thead>
+      <tbody>
+        <% @recently_graded_responses.each do |response| %>
+          <tr>
+            <td><%= response.assignment.course.name %></td>
+            <td><%= link_to response.assignment.name, [response.assignment.course, response.assignment, response] %></td>
+            <td><%= response.try(:score) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
 
   <h2>My responses <small>List of all sound files you&rsquo;ve recoded this year</small></h2>
+  <div class="table-responsive">
+    <table class="table">
+      <thead>
+        <th>Course</th>
+        <th>Assignment</th>
+        <th>Score</th>
+      </thead>
+      <tbody>
+        <% current_user.responses.each do |response| %>
+          <tr>
+            <td><%= response.assignment.course.name %></td>
+            <td><%= link_to response.assignment.name, [response.assignment.course, response.assignment, response] %></td>
+            <td><%= response.try(:score) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
   
 </div>
 
