@@ -5,15 +5,15 @@
     .play-pause-button {
       &.paused {
         .play-button {
-          display: none;
+          display: block;
         }
 
         .pause-button {
-          display: block;
+          display: none;
         }
       }
 
-      .pause-button {
+      .play-button {
         display: none;
       }
     }

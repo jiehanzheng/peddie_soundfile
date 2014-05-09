@@ -44,9 +44,25 @@ class window.Player
           console.log @annotations
           # TODO: visualize annotations
 
-    PeddieSoundfile.player = @
+    # bind buttons
+    @playPauseButton = document.querySelector '.control .play-pause-button'
+    $(@playPauseButton).click =>
+      if @playing
+        @pause()
+      else
+        @play()
 
-    console.groupEnd "Player init"
+      @updateUI()
+
+    @stopButton = document.querySelector '.control .stop-button'
+    $(@stopButton).click =>
+      @stop()
+      @updateUI()
+
+    @updateUI()
+
+    PeddieSoundfile.player = @
+    console.groupEnd()
 
 
   loadJSON: (url) ->
@@ -151,9 +167,11 @@ class window.Player
     @stopSource()
 
   stopSource: =>
-    @currentFragment.stop()
-    @queuedFragments = []
-    @playing = false
+    try
+      @currentFragment.stop()
+      @queuedFragments = []
+      @playing = false
+    catch e    
 
   getPlayedSeconds: =>
     if @playing
@@ -161,24 +179,25 @@ class window.Player
     else
       @lastPauseSecond
 
-
-  setPlayButton: (element) ->
-    @playButton = element
-    @playButton.onclick = @play
-
-
-  setPauseButton: (element) ->
-    @pauseButton = element
-    @pauseButton.onclick = @pause
-
-
   getPlayedPercentage: ->
-    @currentFragment.getCurrentTimeInSoundfile() / @soundFileAudioBuffer.duration
-
+    if @playing
+      @currentFragment.getCurrentTimeInSoundfile() / @soundFileAudioBuffer.duration
+    else
+      @resumeSecond / @soundFileAudioBuffer.duration
 
   updateUI: =>
-    @visualizer.setProgress @getPlayedPercentage()
-    @visualizer.ensureProgressIndicatorVisibility()
+    # button
+    if @playing
+      $(@playPauseButton).removeClass('paused')
+    else
+      $(@playPauseButton).addClass('paused')
+
+    # visualizer
+    try
+      @visualizer.setProgress @getPlayedPercentage()
+      @visualizer.ensureProgressIndicatorVisibility()
+    catch e
+    
 
     if @playing
       requestAnimationFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame
@@ -252,6 +271,3 @@ $ ->
     container = $('<div>').appendTo(playerDiv)[0]
     player = new Player playerDiv.data('audio-src'), container, 
       annotationList: playerDiv[0].dataset.annotationListSrc
-
-    player.setPlayButton $('#play')[0]
-    player.setPauseButton $('#pause')[0]

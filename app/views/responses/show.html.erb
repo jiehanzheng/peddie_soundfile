@@ -8,8 +8,6 @@
                             :class => 'soundfile-player', 
                             :'data-annotation-list-src' => polymorphic_path([@response.assignment.course, @response.assignment, @response, :annotations], format: :json), 
                             :'data-audio-src' => polymorphic_path(@response.audio_file, format: :ogg) } do %>
-      <span id="play">Play</span>
-      <span id="pause">Pause</span>
     <% end %>
   </div>
 
@@ -24,7 +22,7 @@
         Pause
       </div>
     </button>
-    <button type="button" class="btn btn-default">
+    <button type="button" class="btn btn-default stop-button">
       <span class="glyphicon glyphicon-stop"></span>
       Stop
     </button>

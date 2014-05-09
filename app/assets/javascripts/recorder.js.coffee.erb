@@ -153,4 +153,5 @@ class window.Recorder
       $(@recordStopButton).removeClass 'recording'
 
 $ ->
-  new Recorder document.querySelector('#soundfile_recorder'), document.querySelector('form')
+  if document.querySelector('#soundfile_recorder')
+    new Recorder document.querySelector('#soundfile_recorder'), document.querySelector('form')
