@@ -1,0 +1,156 @@
+class window.Recorder
+  ready: false
+  recording: false
+
+  constructor: (@container, @form) ->
+    AudioContext = window.AudioContext || window.webkitAudioContext || window.mozAudioContext;
+    @audioContext = new AudioContext()
+
+    # create a processor node to capture audio input
+    @processorNode = @audioContext.createScriptProcessor 16384, 1, 1
+
+    # worker to cache samples and generate WAV file
+    @wavGenerator = new Worker URL.createObjectURL new Blob(["""<%= File.read("app/assets/javascripts/_recorder_worker.js") %>"""], { "type" : "text/javascript" })
+
+    @wavGenerator.postMessage
+      command: 'init'
+      config:
+        sampleRate: @audioContext.sampleRate
+
+    # get user audio stream from browser
+    navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia
+    navigator.getUserMedia audio: true
+    , (localMediaStream) =>
+      console.log "navigator.getUserMedia() succeeded"
+      @ready = true
+      @userMediaStreamSource = @audioContext.createMediaStreamSource localMediaStream
+      @userMediaStreamSource.connect @processorNode
+      @processorNode.connect @audioContext.destination
+    , (err) =>
+      console.error err
+
+    # set up event handlers to communicate with WAV worker
+    @processorNode.onaudioprocess = (e) =>
+      unless @recording
+        return
+
+      @wavGenerator.postMessage
+        command: 'record'
+        buffer: [e.inputBuffer.getChannelData(0)]
+
+    @wavGenerator.onmessage = (messageEvent) =>
+      # the only time a worker would send a message is when it's dumping WAV file content
+      wavBlob = messageEvent.data
+      @addToRecordingList wavBlob
+      @selectLatestRecording()
+
+    # prepare a recording list in DOM
+    @recordingList = document.createElement 'table'
+    @recordingList.className = 'table recording-list'
+    @container.appendChild @recordingList
+    @recordingList.innerHTML += '<thead><tr><th>Use?</th><th>Audio preview</th><th>Download backup</th></tr></thead>'
+
+    @recordingListTbody = document.createElement 'tbody'
+    @recordingList.appendChild @recordingListTbody
+
+    # bind to events of record/stop button
+    @recordStopButton = @container.querySelector '.control .record-stop-button'
+    @recordStopButton.addEventListener 'click', (e) =>
+      unless @ready
+        alert "You have to allow access to your microphone before recording a sound file."
+        return
+
+      @recording = !@recording
+      @updateUI()
+
+      unless @recording
+        @wavGenerator.postMessage
+          command: 'exportWAV'
+          type: 'audio/wav'
+
+    $(@form).submit (event) =>
+      event.preventDefault()
+
+      # find selected recordingItem
+      unless selectedItem = $(@recordingList).find('input[type=radio]:checked').parents('tr')[0]
+        alert 'You have to record and select at least one sound file before proceeding.'
+        return false
+
+      blobFieldName = @container.dataset.blobFieldName
+      console.log 'Appending audio file as ' + blobFieldName + ' and submitting form...'
+      formData = new FormData @form
+      formData.append @container.dataset.blobFieldName, $(selectedItem).data('wavBlob')
+
+      console.log formData
+      # debugger
+
+      request = new XMLHttpRequest()
+
+      # monitor and report progress
+      request.upload.addEventListener "progress", (progressEvent) -> 
+        console.log progressEvent
+
+      # when done, redirect user
+      request.onload = =>
+        console.log request
+        console.log request.responseText
+        eval request.responseText
+
+      request.open 'POST', @form.getAttribute('action')
+      request.setRequestHeader 'Accept', 'text/javascript'
+      request.send formData
+
+      return false
+
+
+  addToRecordingList: (wavBlob) ->
+    id = Date.now()
+
+    recordingItem = document.createElement 'tr'
+    $(recordingItem).data 'wavBlob', wavBlob  # store blob reference to element for easy submission
+    @recordingListTbody.appendChild recordingItem
+
+    # radio button
+    selectionTd = document.createElement 'td'
+    recordingItem.appendChild selectionTd
+    input = document.createElement 'input'
+    input.type = 'radio'
+    selectionTd.appendChild input  # must append after type is set
+    input.name = 'recordingItems'
+    input.id = 'recording_' + id
+    input.value = id
+
+    # create Blob URL
+    blobURL = URL.createObjectURL(wavBlob);
+
+    # <audio> tag for playback
+    previewTd = document.createElement 'td'
+    recordingItem.appendChild previewTd
+    audio = document.createElement 'audio'
+    previewTd.appendChild audio
+    audio.controls = true
+    audio.src = blobURL
+
+    # download link
+    downloadTd = document.createElement 'td'
+    recordingItem.appendChild downloadTd
+    downloadLink = document.createElement 'a'
+    downloadTd.appendChild downloadLink
+    downloadLink.href = blobURL
+    downloadLink.download = 'soundfile_' + id + '.wav'
+    downloadLink.innerHTML = '<button type="button" class="btn btn-default"><span class="glyphicon glyphicon-download-alt"></span></button>'
+
+
+  selectLatestRecording: ->
+    @recordingList.querySelector('tr:last-of-type input[type=radio]').checked = true
+
+
+  updateUI: ->
+    # record/stop button
+    if @recording
+      $(@recordStopButton).addClass 'recording'
+    else
+      $(@recordStopButton).removeClass 'recording'
+
+$ ->
+  new Recorder document.querySelector('#soundfile_recorder'), document.querySelector('form')

@@ -2,6 +2,7 @@ class WelcomeController < ApplicationController
   def index
     unless current_user
       render 'index_public'
+      return
     end
 
     @todo_assignments = Assignment.joins(

@@ -4,12 +4,22 @@
   <%= render 'form_errors' %>
 
   <div id="audio_file" class="field">
-    <div class="soundfile-recorder"
-         data-toggle-button="button#recording_toggle"
-         data-preview-area="ul#recording_preview"
-         data-blob-field-name="response[audio_file_io]"></div>
-    <button type="button" id="recording_toggle">start recording</button>
-    <ul id="recording_preview"></ul>
+    <div id="soundfile_recorder"
+         class="recorder" 
+         data-blob-field-name="response[audio_file_io]">
+      <div class="control">
+        <button type="button" class="btn btn-primary record-stop-button">
+          <div class="record-button">
+            <span class="glyphicon glyphicon-record"></span>
+            Record
+          </div>
+          <div class="stop-button">
+            <span class="glyphicon glyphicon-stop"></span>
+            Stop
+          </div>
+        </button>
+      </div>
+    </div>
   </div>
   
   <div class="actions">

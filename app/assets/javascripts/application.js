@@ -16,7 +16,7 @@
 //= require responses
 //= require player
 //= require visualizer
-//= require soundfile_recorder
+//= require recorder
 
 
 window.PeddieSoundfile = {}

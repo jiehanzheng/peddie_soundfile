@@ -1,0 +1,21 @@
+.recorder {
+  .control {
+
+    .record-stop-button {
+      &.recording {
+        .record-button {
+          display: none;
+        }
+
+        .stop-button {
+          display: block;
+        }
+      }
+
+      .stop-button {
+        display: none;
+      }
+    }
+  }
+}
+
