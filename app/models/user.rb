@@ -4,6 +4,9 @@ class User < ActiveRecord::Base
   has_many :responses
 
 
+  after_commit :auto_join_courses!
+
+
   def self.from_auth_hash(auth_hash)
     auth_hash = auth_hash.with_indifferent_access
 
@@ -62,6 +65,12 @@ class User < ActiveRecord::Base
 
   def student_of?(course)
     in? course.users
+  end
+
+  def auto_join_courses!
+    Course.find_each do |course|
+      course.associate_students_on_email_list!
+    end
   end
   
 

@@ -1,5 +1,5 @@
 <%= bootstrap_form_for([@assignment.course, @assignment]) do |f| %>
-  <%= f.text_field :name %>
+  <%= f.text_field :name, :required => true %>
   <%= f.datetime_select :due_date %>
   <%= f.primary %>
 <% end %>

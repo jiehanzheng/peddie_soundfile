@@ -1,5 +1,6 @@
 <%= bootstrap_form_for(@course, layout: :horizontal, label_col: 'col-sm-2', control_col: 'col-sm-10') do |f| %>
   <%= f.text_field :name %>
+  <%= f.text_area :email_list, rows: 15, help: "Students with matching email addresses will be automatically added to your course. &nbsp;Removing an address from this list does <em>not</em> currently remove that student from your course. &nbsp;Enter one address per line.".html_safe %>
   <%= f.form_group do %>
     <%= f.submit class: 'btn btn-primary' %>
   <% end %>
