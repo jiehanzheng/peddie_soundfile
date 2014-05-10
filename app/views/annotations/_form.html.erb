@@ -5,8 +5,8 @@
     </div>
   <% end %>
 
-  <%= f.text_field :start_second %>
-  <%= f.text_field :end_second %>
+  <%= f.number_field :start_second, :required => true %>
+  <%= f.number_field :end_second, :required => true %>
   <%= f.text_area :notes %>
   <%= f.primary %>
 <% end %>

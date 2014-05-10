@@ -31,8 +31,10 @@ class AnnotationsController < ApplicationController
     respond_to do |format|
       if @annotation.save
         format.html { redirect_to [@annotation.response.assignment.course, @annotation.response.assignment, @annotation.response], notice: 'Annotation was successfully created.' }
+        format.js { flash[:notice] = 'Annotation was successfully created.'; render 'create' }
       else
         format.html { render action: 'new' }
+        format.js { render 'create_fail' }
       end
     end
   end

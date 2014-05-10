@@ -28,7 +28,7 @@ class ResponsesController < ApplicationController
     respond_to do |format|
       if @response.save
         format.html { redirect_to [@response.assignment.course, @response.assignment, @response], notice: 'Response was successfully created.' }
-        format.js { render 'create' }
+        format.js { flash[:notice] = 'Annotation was successfully created.'; render 'create' }
       else
         format.html { render action: 'new' }
         format.js { render 'create_fail' }
