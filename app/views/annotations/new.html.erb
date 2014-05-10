@@ -1,5 +1,7 @@
+<% breadcrumb :response, @annotation.response %>
+
 <h1>New annotation</h1>
 
-<%= render 'form' %>
-
-<%= link_to 'Back', polymorphic_path([@annotation.response.assignment.course, @annotation.response.assignment, @annotation.response, :annotations]) %>
+<div class="col-sm-6">
+  <%= render 'form' %>
+</div>

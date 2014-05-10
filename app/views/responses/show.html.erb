@@ -33,15 +33,15 @@
 
 <div class="container">
 
-
 <div class="col-md-7">
-  <h2>Teachers&rsquo;s annotations</h2>
+  <h2>
+    Teachers&rsquo;s annotations
+    <%= link_to '<span class="glyphicon glyphicon-plus"></span>'.html_safe + ' New annotation', new_polymorphic_path([@response.assignment.course, @response.assignment, @response, :annotation]), :class => 'btn btn-primary btn-sm' if current_user.teacher_of?(@response.assignment.course) %>
+
+  </h2>
   <div id="annotations" class="list-group">
     <%= render @response.annotations %>
   </div>
-  <%= link_to 'Add annotation', new_polymorphic_path([@response.assignment.course, @response.assignment, @response, :annotation]) %> |
-  <%= link_to 'Edit', edit_course_assignment_response_path(@response.assignment.course, @response.assignment, @response) %> |
-  <%= link_to 'Back', [@response.assignment.course, @response.assignment, @response] %>
 </div>
 
 <div class="col-md-5">

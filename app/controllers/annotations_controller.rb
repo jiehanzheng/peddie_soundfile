@@ -1,34 +1,32 @@
 class AnnotationsController < ApplicationController
   before_action :set_annotation, only: [:show, :edit, :update, :destroy]
+  before_action :require_login
 
   # GET /annotations
   # GET /annotations.json
   def index
-    @annotations = Response.find(params[:response_id]).annotations
-  end
-
-  # GET /annotations/1
-  # GET /annotations/1.json
-  def show
+    response = Response.find(params[:response_id])
+    return if !require_same_user_or_teacher(response.user, response.assignment.course)
+    @annotations = response.annotations
   end
 
   # GET /annotations/new
   def new
     @annotation = Annotation.new
     set_annotation_response
+    return if !require_teacher @annotation.response.assignment.course
   end
 
   # GET /annotations/1/edit
   def edit
+    return if !require_teacher @annotation.response.assignment.course
   end
 
   # POST /annotations
-  # POST /annotations.json
   def create
     @annotation = Annotation.new(annotation_params)
     set_annotation_response
-
-    # TODO: permission check
+    return if !require_teacher @annotation.response.assignment.course
 
     respond_to do |format|
       if @annotation.save
@@ -40,8 +38,9 @@ class AnnotationsController < ApplicationController
   end
 
   # PATCH/PUT /annotations/1
-  # PATCH/PUT /annotations/1.json
   def update
+    return if !require_teacher @response.assignment.course
+
     respond_to do |format|
       if @annotation.update(annotation_params)
         format.html { redirect_to [@annotation.response.assignment.course, @annotation.response.assignment, @annotation.response], notice: 'Annotation was successfully updated.' }
@@ -52,8 +51,9 @@ class AnnotationsController < ApplicationController
   end
 
   # DELETE /annotations/1
-  # DELETE /annotations/1.json
   def destroy
+    return if !require_teacher @response.assignment.course
+
     @annotation.destroy
     respond_to do |format|
       format.html { redirect_to annotations_url }

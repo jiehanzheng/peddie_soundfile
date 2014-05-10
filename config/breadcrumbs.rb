@@ -18,7 +18,7 @@ crumb :assignment do |assignment|
 end
 
 crumb :response do |response|
-  link (''.html_safe + response.user.full_name + '&rsquo;'.html_safe + 's response').html_safe, [response.assignment.course, response.assignment, response]
+  link (if response.persisted? then ''.html_safe + response.user.full_name + '&rsquo;'.html_safe + 's revision ' + response.revision_number.to_s else 'Record new sound file' end), [response.assignment.course, response.assignment, response]
   parent :assignment, response.assignment
 end
 

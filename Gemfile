@@ -10,6 +10,7 @@ gem 'therubyracer', platforms: :ruby
 gem 'jquery-rails'
 gem 'jbuilder', '~> 1.2'
 gem 'bootstrap-sass', '~> 3.1.1'
+gem 'bootstrap_form'
 gem "gretel", :git => 'https://github.com/jiehanzheng/gretel.git', :branch => 'rails4.1'
 gem 'activerecord-session_store'
 gem "omniauth-google-oauth2"

@@ -2,40 +2,29 @@ class AssignmentsController < ApplicationController
   before_action :set_assignment, only: [:show, :edit, :update, :destroy]
   before_action :require_login
 
-  # Only teachers of this course can make edits.
-  # 
-  # Permission checking for new/create actions is written inline, as 
-  # @assignment.course has not been set by the time before_action is ran.
-  before_action only: [:edit, :update, :destroy] do
-    require_teacher @assignment.course
-  end
-
-
-  # GET /assignments
-  def index
-    @assignments = Assignment.all
-  end
 
   # GET /assignments/1
   def show
+    return if !require_student @assignment.course
   end
 
   # GET /assignments/new
   def new
     @assignment = Assignment.new
     set_assignment_course
-    require_teacher @assignment.course
+    return if !require_teacher @assignment.course
   end
 
   # GET /assignments/1/edit
   def edit
+    return if !require_teacher @assignment.course
   end
 
   # POST /assignments
   def create
     @assignment = Assignment.new(assignment_params)
     set_assignment_course
-    require_teacher @assignment.course
+    return if !require_teacher @assignment.course
 
     respond_to do |format|
       if @assignment.save
@@ -48,6 +37,8 @@ class AssignmentsController < ApplicationController
 
   # PATCH/PUT /assignments/1
   def update
+    return if !require_teacher @assignment.course
+
     respond_to do |format|
       if @assignment.update(assignment_params)
         format.html { redirect_to [@assignment.course, @assignment], notice: 'Assignment was successfully updated.' }
@@ -59,6 +50,8 @@ class AssignmentsController < ApplicationController
 
   # DELETE /assignments/1
   def destroy
+    return if !require_teacher @assignment.course
+
     @assignment.destroy
     respond_to do |format|
       format.html { redirect_to course_assignments_url }

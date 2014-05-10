@@ -1,27 +1,59 @@
 <% breadcrumb :assignment, @assignment %>
 
-<p id="notice"><%= notice %></p>
+<div class="page-header">
+  <h1><%= @assignment.name %> <small>Due at <%= @assignment.due_date %></small></h1>
+</div>
 
-<p>
-  <strong>Course:</strong>
-  <%= @assignment.course_id %>
-</p>
 
-<p>
-  <strong>Due date:</strong>
-  <%= @assignment.due_date %>
-</p>
-
-<div class="panel panel-default">
-  <div class="panel-heading">Submitted responses</div>
-  <div class="list-group">
-    <% @assignment.responses.each do |response| %>
-      <%= link_to response.user.full_name, [response.assignment.course, response.assignment, response], :class => 'list-group-item' %>
+<div class="col-md-9">
+  <h2>
+    <% if current_user.teacher_of? @assignment.course %>
+      Submitted responses
+    <% elsif current_user.student_of? @assignment.course %>
+      My responses
     <% end %>
+
+    <%= link_to '<span class="glyphicon glyphicon-record"></span>'.html_safe + ' Record new sound file', new_course_assignment_response_path(:assignment_id => @assignment.id), :class => 'btn btn-primary btn-sm'  %>
+  </h2>
+  
+  <div class="table-responsive">
+    <table class="table">
+      <thead>
+        <% if current_user.teacher_of? @assignment.course %>
+          <th>Student</th>
+        <% end %>
+        <th>Revision</th>
+        <th>Submission time</th>
+        <th>Score</th>
+      </thead>
+      <tbody>
+        <% @assignment.responses.each do |response| %>
+          <% next if response.user != current_user && !current_user.teacher_of?(@assignment.course) %>
+          <tr>
+          <% if current_user.teacher_of? @assignment.course %>
+            <td><%= response.user.full_name %></td>
+          <% end %>
+          <td>
+            <%= link_to "Revision " + response.revision_number.to_s, [response.assignment.course, response.assignment, response] %>
+          </td>
+          <td><%= response.created_at %></td>
+          <td><%= response.try(:score) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
   </div>
 </div>
 
-<%= link_to 'Record New Response', new_course_assignment_response_path(:assignment_id => @assignment.id) %>
-
-<%= link_to 'Edit', edit_course_assignment_path(@assignment.course, @assignment) %> |
-<%= link_to 'Back', course_assignments_path %>
+<div class="col-md-3">
+  <% if current_user.teacher_of? @assignment.course %>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">Links for teachers</h3>
+      </div>
+      <div class="list-group">
+        <%= link_to '<span class="glyphicon glyphicon-pencil"></span> '.html_safe + 'Edit assignment', edit_course_assignment_path(@assignment.course, @assignment), class: 'list-group-item' %>
+      </div>
+    </div>
+  <% end %>
+</div>

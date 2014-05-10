@@ -7,7 +7,7 @@
 <div class="col-md-9">
   <h2>
     Assignments
-    <%= link_to '<span class="glyphicon glyphicon-plus"></span>'.html_safe + ' New assignment', new_course_assignment_path(@course), :class => 'btn btn-primary btn-sm' %>
+    <%= link_to '<span class="glyphicon glyphicon-plus"></span>'.html_safe + ' New assignment', new_course_assignment_path(@course), :class => 'btn btn-primary btn-sm' if current_user.teacher_of? @course %>
   </h2>
   <div class="table-responsive">
     <table class="table">
@@ -24,18 +24,14 @@
 </div>
 
 <div class="col-md-3">
-  <h2>Students</h2>
-  <div class="media">
-    <a class="pull-left" href="#">
-      <img class="media-object" src="..." alt="...">
-    </a>
-    <div class="media-body">
-      <h4 class="media-heading">Media heading</h4>
-      ...
+  <% if current_user.teacher_of? @course %>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">Links for teachers</h3>
+      </div>
+      <div class="list-group">
+        <%= link_to '<span class="glyphicon glyphicon-pencil"></span> '.html_safe + 'Edit course', edit_course_path(@course), class: 'list-group-item' %>
+      </div>
     </div>
-  </div>
+  <% end %>
 </div>
-
-
-<%= link_to 'Edit', edit_course_path(@course) %> |
-<%= link_to 'Back', courses_path %>

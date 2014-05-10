@@ -1,17 +1,6 @@
 class ResponsesController < ApplicationController
   before_action :set_response, only: [:show, :edit, :update, :destroy]
   before_action :require_login
-  before_action only: [:edit, :update] do
-    require_teacher @response.assignment.course
-  end
-
-  # Only students of this course can make edits.
-  # 
-  # Permission checking for new/create actions is written inline, as 
-  # @response.assignment has not been set by the time before_action is ran.
-  before_action only: [:destroy] do
-    require_student @response.assignment.course
-  end
 
   # GET /responses
   def index
@@ -26,18 +15,14 @@ class ResponsesController < ApplicationController
   def new
     @response = Response.new
     set_response_assignment
-    require_student @response.assignment.course
-  end
-
-  # GET /responses/1/edit
-  def edit
+    return if !require_student @response.assignment.course
   end
 
   # POST /responses
   def create
     @response = Response.new(params.require(:response).permit(:audio_file_io))
     set_response_assignment
-    require_student @response.assignment.course
+    return if !require_student @response.assignment.course
     set_response_user
 
     respond_to do |format|
@@ -53,6 +38,8 @@ class ResponsesController < ApplicationController
 
   # PATCH/PUT /responses/1
   def update
+    return if !require_teacher @response.assignment.course
+
     if current_user.teacher_of? @response.assignment.course
       clean_params = params.require(:response).permit(:score, :notes)
     else
@@ -70,6 +57,8 @@ class ResponsesController < ApplicationController
 
   # DELETE /responses/1
   def destroy
+    return if !require_student @response.assignment.course
+
     @response.destroy
     respond_to do |format|
       format.html { redirect_to [@response.assignment.course, @response.assignment] }
@@ -79,7 +68,7 @@ class ResponsesController < ApplicationController
   # GET /responses/1/score/edit
   def edit_score
     @response = Response.find(params[:response_id])
-    require_teacher @response.assignment.course
+    return if !require_teacher @response.assignment.course
 
     respond_to do |format|
       format.js
