@@ -2,19 +2,11 @@ class CoursesController < ApplicationController
   before_action :set_course, only: [:show, :edit, :update, :destroy]
   before_action :require_login
   before_action :require_admin, only: [:new, :create, :destroy]
-  before_action only: [:edit, :update] do
-    require_teacher @course
-  end
-
-  # GET /courses
-  # GET /courses.json
-  def index
-    @courses = Course.all
-  end
 
   # GET /courses/1
   # GET /courses/1.json
   def show
+    return if !require_student @course
   end
 
   # GET /courses/new
@@ -24,6 +16,7 @@ class CoursesController < ApplicationController
 
   # GET /courses/1/edit
   def edit
+    return if !require_teacher @course
   end
 
   # POST /courses
@@ -45,6 +38,8 @@ class CoursesController < ApplicationController
   # PATCH/PUT /courses/1
   # PATCH/PUT /courses/1.json
   def update
+    return if !require_teacher @course
+
     respond_to do |format|
       if @course.update(course_params)
         format.html { redirect_to @course, notice: 'Course was successfully updated.' }

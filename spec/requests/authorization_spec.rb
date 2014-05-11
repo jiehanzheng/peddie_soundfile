@@ -1,8 +1,54 @@
 require 'spec_helper'
 
+module AuthenticationHelpers
+  def sign_in_as(user)
+    allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(user)
+    allow_any_instance_of(SessionsHelper).to receive(:current_user).and_return(user)
+  end
+
+  module ClassMethods
+    def define_get_access_rule(allow_or_disallow, path_method, &block)
+      instance_eval do
+        it "should #{allow_or_disallow} access to #{path_method}" do
+          if block_given?
+            params = self.instance_eval(&block)
+          else
+            params = []
+          end
+
+          unless params.kind_of?(Array)
+            params = [params]
+          end
+
+          get method(path_method).call(*params)
+
+          if allow_or_disallow == :allow
+            expect(response.status).to eq 200
+          else
+            expect(response.status).to eq 302
+          end
+        end
+      end
+    end
+  end
+
+  def self.included(base)
+    base.extend(ClassMethods)
+  end
+end
+
+
+RSpec.configure do |c|
+  c.include AuthenticationHelpers
+  c.include Rails.application.routes.url_helpers
+end
+
+
 describe "Authorization" do
 
   before(:each) {
+    AudioFile.skip_callback(:validation, :before, :save_file)
+
     @course_1 = FactoryGirl.create(:course)
     @course_2 = FactoryGirl.create(:course)
 
@@ -12,149 +58,76 @@ describe "Authorization" do
 
     @course_1.teachers << @teacher
     @course_1.students << @student
+    @course_2.teachers << @teacher
+    @course_2.students << @student
 
-    @assignment = FactoryGirl.create(:assignment)
-    @course_1.assignments << @assignment
+    first_response = @course_1.assignments.first.responses.first
+    first_response.user = @student
+    first_response.save!
   }
 
-
-  shared_examples "allows access to public pages" do
-    it "allows access to home page" do
-      get root_path
-      expect(response.status).to eq 200
-    end
+  shared_examples "read access to public pages" do |allow_or_disallow|
+    define_get_access_rule allow_or_disallow, :root_path
   end
 
-  shared_examples "allows access to listings" do
-    it "allows access to courses listing" do
-      get courses_path
-      expect(response.status).to eq 200
-    end
-
-    it "allows access to assignments listing" do
-      get course_assignments_path(@course_1)
-      expect(response.status).to eq 200
-    end
+  shared_examples "read access to his/her course, assignment, and response" do |allow_or_disallow|
+    define_get_access_rule(allow_or_disallow, :course_path) { @course_1 }
+    define_get_access_rule(allow_or_disallow, :course_assignment_path) { [@course_1, @course_1.assignments.first] }
+    define_get_access_rule(allow_or_disallow, :course_assignment_response_path) { [@course_1, @course_1.assignments.first, @course_1.assignments.first.responses.first] }    
   end
 
-  shared_examples "denies access to listings" do
-    it "denies access to courses listing" do
-      get courses_path
-      expect(response.status).not_to eq 200
-    end
-
-    it "denies access to assignments listing" do
-      get course_assignments_path(@course_1)
-      expect(response.status).not_to eq 200
-    end
+  shared_examples "read access to other's responses" do |allow_or_disallow|
+    define_get_access_rule(allow_or_disallow, :course_assignment_response_path) { [@course_2, @course_2.assignments.first, @course_2.assignments.first.responses.first] }    
   end
-
-  shared_examples "allows student level access" do
-    it "allows submission of responses" do
-      get new_course_assignment_response_path(@course_1, @assignment)
-      expect(response.status).to eq 200
-    end
-  end
-
-  shared_examples "denies student level access" do
-    it "denies submission of responses" do
-      get new_course_assignment_response_path(@course_1, @assignment)
-      expect(response.status).not_to eq 200
-    end
-  end
-
-  shared_examples "allows teacher level access" do
-    it "allows editing of courses" do
-      get edit_course_path(@course_1)
-      expect(response.status).to eq 200
-    end
-
-    it "allows creation of assignments" do
-      get new_course_assignment_path(@course_1)
-      expect(response.status).to eq 200
-    end
-
-    it "allows editing of assignments" do
-      get edit_course_assignment_path(@course_1, @assignment)
-      expect(response.status).to eq 200
-    end
-  end
-
-  shared_examples "denies teacher level access" do
-    it "denies editing of courses" do
-      get edit_course_path(@course_1)
-      expect(response.status).not_to eq 200
-    end
-
-    it "denies creation of assignments" do
-      get new_course_assignment_path(@course_1)
-      expect(response.status).not_to eq 200
-    end
-
-    it "denies editing of assignments" do
-      get edit_course_assignment_path(@course_1, @assignment)
-      expect(response.status).not_to eq 200
-    end
-  end
-
 
   context "with a guest" do
     before(:each) {
-      allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(nil)
+      sign_in_as nil
     }
 
-    it_should_behave_like "allows access to public pages"
-    it_should_behave_like "denies access to listings"
-    it_should_behave_like "denies student level access"
-    it_should_behave_like "denies teacher level access"
+    include_examples "read access to public pages", :allow
+    include_examples "read access to his/her course, assignment, and response", :disallow
+    include_examples "read access to other's responses", :disallow
   end
-
 
   context "with a student without any courses" do
     before(:each) {
-      allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(@student_without_courses)
+      sign_in_as @student_without_courses
     }
 
-    it_should_behave_like "allows access to public pages"
-    it_should_behave_like "allows access to listings"
-    it_should_behave_like "denies student level access"
-    it_should_behave_like "denies teacher level access"
+    include_examples "read access to public pages", :allow
+    include_examples "read access to his/her course, assignment, and response", :disallow
+    include_examples "read access to other's responses", :disallow
   end
-
 
   context "with a student enrolled in a course" do
     before(:each) {
-      allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(@student)
+      sign_in_as @student
     }
 
-    it_should_behave_like "allows access to public pages"
-    it_should_behave_like "allows access to listings"
-    it_should_behave_like "allows student level access"
-    it_should_behave_like "denies teacher level access"
+    include_examples "read access to public pages", :allow
+    include_examples "read access to his/her course, assignment, and response", :allow
+    include_examples "read access to other's responses", :disallow
   end
-
 
   context "with a teacher" do
     before(:each) {
-      allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(@teacher)
+      sign_in_as @teacher
     }
 
-    it_should_behave_like "allows access to public pages"
-    it_should_behave_like "allows access to listings"
-    it_should_behave_like "allows student level access"
-    it_should_behave_like "allows teacher level access"
+    include_examples "read access to public pages", :allow
+    include_examples "read access to his/her course, assignment, and response", :allow
+    include_examples "read access to other's responses", :allow
   end
-
 
   context "with an admin" do
     before(:each) {
-      allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(FactoryGirl.build(:user, admin: true))
+      sign_in_as FactoryGirl.build(:user, admin: true)
     }
 
-    it_should_behave_like "allows access to public pages"
-    it_should_behave_like "allows access to listings"
-    it_should_behave_like "allows student level access"
-    it_should_behave_like "allows teacher level access"
+    include_examples "read access to public pages", :allow
+    include_examples "read access to his/her course, assignment, and response", :allow
+    include_examples "read access to other's responses", :allow
   end
   
 end

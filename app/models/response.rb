@@ -2,6 +2,9 @@ class Response < ActiveRecord::Base
   belongs_to :user
   belongs_to :assignment
   has_many :annotations, :dependent => :destroy
+  
+  validates_associated :user
+
 
   include AudioFileAttachable
 

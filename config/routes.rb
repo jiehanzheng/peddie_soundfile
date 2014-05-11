@@ -3,6 +3,7 @@ PeddieSoundfile::Application.routes.draw do
   match '/auth/:provider/callback', to: 'sessions#create', via: [:get, :post]
   post '/sessions/destroy'
 
+  resources :audio_files
   resources :courses do
     resources :assignments do
       resources :responses do
@@ -11,8 +12,6 @@ PeddieSoundfile::Application.routes.draw do
       end
     end
   end
-
-  resources :audio_files
 
   # admin only
   resources :enrollments

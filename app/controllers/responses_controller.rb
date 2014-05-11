@@ -2,13 +2,10 @@ class ResponsesController < ApplicationController
   before_action :set_response, only: [:show, :edit, :update, :destroy]
   before_action :require_login
 
-  # GET /responses
-  def index
-    @responses = Response.all
-  end
 
   # GET /responses/1
   def show
+    return if !require_same_user_or_teacher @response.user, @response.assignment.course
   end
 
   # GET /responses/new
@@ -57,7 +54,7 @@ class ResponsesController < ApplicationController
 
   # DELETE /responses/1
   def destroy
-    return if !require_student @response.assignment.course
+    return if !require_same_user_or_teacher @response.user, @response.assignment.course
 
     @response.destroy
     respond_to do |format|

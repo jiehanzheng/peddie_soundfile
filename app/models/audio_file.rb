@@ -2,6 +2,9 @@ class AudioFile < ActiveRecord::Base
   before_validation :save_file
   before_destroy :delete_files
 
+  has_one :annotation
+  has_one :response
+
 
   def file=(file_io)
     @file = file_io
@@ -13,6 +16,19 @@ class AudioFile < ActiveRecord::Base
 
   def path(extension = 'ogg')
     File.join(base_path, filename(extension))
+  end
+
+  # Find out associated student of this audio file
+  #
+  # If this is an audio file attached to a response, return the student; or if 
+  # this is an audio file attached to a teacher's annotation, returns the 
+  # student whose sound file was annotated.
+  def associated_student
+    annotation.try(:response).try(:user) || response.try(:user)
+  end
+
+  def associated_course
+    annotation.try(:response).try(:assignment).try(:course) || response.try(:assignment).try(:course)
   end
 
   private
