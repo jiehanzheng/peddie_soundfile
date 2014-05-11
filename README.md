@@ -14,7 +14,33 @@ Recommended Debian / Ubuntu packages are noted in parenthesis.
 * Nginx web server with X-Accel-Redirect support (`nginx`)
 
 #### Database
-You need to create a MySQL database on server and create a `database.yml`.
+You need to create a MySQL database on server and create a `config/database.yml`.
+
+```yaml
+development:
+  adapter: sqlite3
+  database: db/development.sqlite3
+  pool: 5
+  timeout: 5000
+
+# Warning: The database defined as "test" will be erased and
+# re-generated from your development database when you run "rake".
+# Do not set this db to the same as development or production.
+test:
+  adapter: sqlite3
+  database: db/test.sqlite3
+  pool: 5
+  timeout: 5000
+
+production:
+  adapter: mysql2
+  database: 
+  username: 
+  password:
+  pool: 5
+  timeout: 5000
+
+```
 
 #### Nginx as a reverse proxy
 ```nginx
@@ -43,10 +69,10 @@ Sound files are uploaded from client as raw WAV files, and uploading 1 minute of
 
 Once uploaded, sound files are then converted to Ogg Vorbis to save disk space.
 
-### secrets.yml
-Although we store session data in the database, it is still recommended that you have a secret `secrets.yml`.
+### config/secrets.yml
+Although we store session data in the database, it is still recommended that you have a secret `config/secrets.yml`.
 
-```ruby
+```yaml
 development:
   secret_key_base: 
   
@@ -60,7 +86,7 @@ production:
 Generate, copy and paste secret_key_bases for each environment by running `rake secret`.
 
 ### Google OAuth 2.0 application key
-Register your application with Google and fill out your client ID and secret in `config/initializers/omniauth.rb`.
+Register your application with Google and fill in your client ID and secret in `config/initializers/omniauth.rb`.
 
 ```ruby
 Rails.application.config.middleware.use OmniAuth::Builder do
