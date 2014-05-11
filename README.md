@@ -1,6 +1,8 @@
 Peddie Sound File Manager
 =========================
 
+![Student response page](http://static.jiehan.org/pub/peddie_soundfile/responses_show.png)
+
 Installation
 ------------
 
