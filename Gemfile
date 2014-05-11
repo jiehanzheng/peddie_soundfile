@@ -16,8 +16,12 @@ gem "gretel", :git => 'https://github.com/jiehanzheng/gretel.git', :branch => 'r
 gem 'activerecord-session_store'
 gem "omniauth-google-oauth2"
 
+gem 'capistrano', '~> 3.1', group: :development
+gem 'capistrano-rails', '~> 1.1', group: :development
+gem 'rvm1-capistrano3', require: false, group: :development
+
 gem "puma"
-gem 'capistrano', group: :development
+gem 'capistrano3-puma', group: :development
 
 group :development, :test do
   gem 'rspec', '~> 3.0.0.beta2'
