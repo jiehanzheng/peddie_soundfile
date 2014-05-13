@@ -1,4 +1,8 @@
 <tr>
-  <td><%= link_to response.assignment.name, [response.assignment.course, response.assignment, response] %></td>
-  <td><%= response.try(:score) %></td>
+  <td><%= if response.assignment then link_to response.id, [response.assignment.course, response.assignment, response] else response.id end %></td>
+  <td><%= response.try(:assignment).try(:course).try(:name) %></td>
+  <td><%= response.try(:assignment).try(:name) %></td>
+  <td><%= response.audio_file_id %></td>
+  <td><%= response.notes %></td>
+  <td><%= response.score %></td>
 </tr>

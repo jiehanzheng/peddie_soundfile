@@ -17,7 +17,13 @@
         <th>Points</th>
       </thead>
       <tbody>
-        <%= render @course.assignments.most_recent_first %>
+        <% @course.assignments.most_recent_first.each do |assignment| %>
+          <tr>
+            <td><%= link_to assignment.name, [assignment.course, assignment] %></td>
+            <td><%= assignment.due_date %></td>
+            <td><%= assignment.try(:points_possible) %></td>
+          </tr>
+        <% end %>
       </tbody>
     </table>
   </div>

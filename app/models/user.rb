@@ -66,12 +66,6 @@ class User < ActiveRecord::Base
   def student_of?(course)
     in? course.users
   end
-
-  def auto_join_courses!
-    Course.find_each do |course|
-      course.associate_students_on_email_list!
-    end
-  end
   
 
   private
@@ -88,8 +82,8 @@ class User < ActiveRecord::Base
 
     # Find courses of which the student is already a member, and enroll
     # automatically.
-    def auto_enroll
-      Course.all.each do |course|
+    def auto_join_courses!
+      Course.find_each do |course|
         course.associate_students_on_email_list!
       end
     end

@@ -15,6 +15,10 @@ class Course < ActiveRecord::Base
   # Read students' email addresses from a list (one address per line), and 
   # attach the student to this course if he/she has registered with this site.
   def associate_students_on_email_list!
+    if email_list.nil?
+      return
+    end
+
     student_emails = email_list.split
 
     User.where(email: student_emails).each do |student|

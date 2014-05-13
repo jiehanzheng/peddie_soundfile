@@ -4,6 +4,6 @@ class Enrollment < ActiveRecord::Base
 
   validates_uniqueness_of :user_id, scope: [:course_id, :user_role]
 
-  enum user_role: [ :student, :teacher ]
+  enum user_role: [:student, :teacher]
 
 end

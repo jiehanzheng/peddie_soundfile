@@ -28,6 +28,10 @@ class ApplicationController < ActionController::Base
     end
 
     def require_teacher(course)
+      if current_user.admin?
+        return true
+      end
+
       unless current_user.teacher_of? course
         flash[:error] = "Only teachers can perform that action."
         redirect_to root_path
@@ -38,6 +42,10 @@ class ApplicationController < ActionController::Base
     end
 
     def require_student(course)
+      if current_user.admin?
+        return true
+      end
+
       unless current_user.student_of? course
         flash[:error] = "Only students/teachers of this course can perform that action."
         redirect_to root_path
@@ -48,6 +56,10 @@ class ApplicationController < ActionController::Base
     end
 
     def require_same_user_or_teacher(user, course)
+      if current_user.admin?
+        return true
+      end
+      
       unless current_user == user || current_user.teacher_of?(course)
         flash[:error] = "Only " + user.full_name + " can perform that action."
         redirect_to root_path

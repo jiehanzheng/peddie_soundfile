@@ -16,6 +16,7 @@ PeddieSoundfile::Application.routes.draw do
   # admin only
   resources :enrollments
   resources :users
+  get '/sessions/create_by_user_id' if !Rails.env.production?
 
   root 'welcome#index'
 
