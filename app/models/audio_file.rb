@@ -38,6 +38,7 @@ class AudioFile < ActiveRecord::Base
 
     def save_file
       unless new_record?
+        Rails.logger.debug "Not a new_record, skipping save_file..."
         return
       end
 
@@ -55,7 +56,7 @@ class AudioFile < ActiveRecord::Base
         new_file.write(@file.read)
       end
 
-      # convert to ogg opus using opusenc
+      # convert to ogg vorbis using oggenc
       converter_io = IO.popen(['oggenc', '-o', path, path('wav')])
       Rails.logger.debug converter_io.readlines
       converter_io.close
@@ -63,16 +64,16 @@ class AudioFile < ActiveRecord::Base
       delete_wav
 
       if $?.exitstatus != 0
-        raise "opusenc returned a non-zero value."
+        raise "oggenc returned a non-zero value."
       end
     end
 
     def delete_file
       delete_wav
-      delete_opus
+      delete_ogg
     end
 
-    def delete_opus
+    def delete_ogg
       FileUtils.rm(path) if File.exist?(path)
     end
 

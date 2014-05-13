@@ -4,8 +4,6 @@ module AudioFileAttachable
   included do
     belongs_to :audio_file, :dependent => :destroy
     before_create :save_attachment
-
-    validates_associated :audio_file
   end
 
   def audio_file_io=(uploaded_io)
@@ -14,10 +12,12 @@ module AudioFileAttachable
 
   private
     def save_attachment
-      if defined? audio_file
+      unless audio_file.blank?
+        Rails.logger.debug "audio_file is blank, skipping save_attachment..."
         return
       end
 
+      Rails.logger.debug "Creating and populating AudioFile object..."
       this_audio_file = AudioFile.new
       this_audio_file.file = @audio_file_io
       this_audio_file.save!
