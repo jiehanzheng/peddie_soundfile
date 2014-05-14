@@ -6,7 +6,7 @@ describe Enrollment do
     @user = FactoryGirl.create(:user)
 
     expect{@course.students << @user}.to change{Enrollment.count}.from(0).to(1)
-    expect{@course.students << @user}.to_not change{Enrollment.count}
+    expect{@course.students << @user}.to raise_error
     expect{@course.teachers << @user}.to change{Enrollment.count}.by(1)
   end
 end

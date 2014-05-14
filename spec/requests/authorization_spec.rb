@@ -49,8 +49,8 @@ describe "Authorization" do
   before(:each) {
     AudioFile.skip_callback(:validation, :before, :save_file)
 
-    @course_1 = FactoryGirl.create(:course)
-    @course_2 = FactoryGirl.create(:course)
+    @course_1 = FactoryGirl.create(:course_with_assignments)
+    @course_2 = FactoryGirl.create(:course_with_assignments)
 
     @teacher = FactoryGirl.create(:user)
     @student = FactoryGirl.create(:user)

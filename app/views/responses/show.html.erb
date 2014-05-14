@@ -1,3 +1,4 @@
+<% set_title ''.html_safe + @response.user.first_name + '&rsquo;s revision '.html_safe + @response.revision_number.to_s + ' - ' + @response.assignment.name + ' - ' + @response.assignment.course.name  %>
 <% breadcrumb :response, @response %>
 
 </div><!-- /.container -->
