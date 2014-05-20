@@ -1,16 +1,26 @@
-<div id="soundfile_recorder"
-     class="recorder" 
-     data-blob-field-name="<%= blob_field_name %>">
-  <div class="control">
-    <button type="button" class="btn btn-danger record-stop-button">
-      <div class="record-button">
-        <span class="glyphicon glyphicon-record"></span>
-        Record
-      </div>
-      <div class="stop-button">
-        <span class="glyphicon glyphicon-stop"></span>
-        Stop
-      </div>
-    </button>
+<% if params.has_key?(:use_local_wav) %>
+  <div class="form-group">
+    <%= label_tag blob_field_name, 'WAV sound file manual upload' %>
+    <%= file_field_tag blob_field_name %>
+    <p class="help-block">If you don&rsquo;t have a local file, <%= link_to "use the built-in recorder to record one", params.merge({:use_local_wav => nil}) %>.</p>
   </div>
-</div>
+<% else %>
+  <div id="soundfile_recorder"
+       class="recorder" 
+       data-blob-field-name="<%= blob_field_name %>">
+    <div class="control">
+      <button type="button" class="btn btn-danger record-stop-button">
+        <div class="record-button">
+          <span class="glyphicon glyphicon-record"></span>
+          Record
+        </div>
+        <div class="stop-button">
+          <span class="glyphicon glyphicon-stop"></span>
+          Stop
+        </div>
+      </button>
+      <span class="text-muted">&mdash;OR&mdash;</span>
+      <%= link_to "Manually upload a local WAV file", params.merge({:use_local_wav => 1}), :class => 'btn btn-default btn-xs' %>
+    </div>
+  </div>
+<% end %>

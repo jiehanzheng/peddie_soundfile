@@ -3,7 +3,7 @@
 <h1>New response</h1>
 
 <div class="col-md-7">
-  <%= form_for([@response.assignment.course, @response.assignment, @response]) do |f| %>
+  <%= form_for([@response.assignment.course, @response.assignment, @response], html: {multipart: true}) do |f| %>
     <div id="audio_file" class="field">
       <%= render 'shared/recorder', locals = { :blob_field_name => 'response[audio_file_io]' } %>
     </div>

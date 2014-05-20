@@ -1,4 +1,4 @@
-<%= bootstrap_form_for([@annotation.response.assignment.course, @annotation.response.assignment, @annotation.response, @annotation]) do |f| %>
+<%= bootstrap_form_for([@annotation.response.assignment.course, @annotation.response.assignment, @annotation.response, @annotation], html: {multipart: true}) do |f| %>
   <% unless defined? hide_recorder %>
     <div id="audio_file" class="field">
       <%= render 'shared/recorder', locals = { :blob_field_name => 'annotation[audio_file_io]' } %>
