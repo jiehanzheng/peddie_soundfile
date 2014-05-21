@@ -12,6 +12,8 @@ Recommended Debian / Ubuntu packages are noted in parenthesis.
 * MySQL and libmysql Ruby bindings (`mysql-server` `mysql-client` `libmysql-ruby` `libmysqlclient-dev`)
 * Ogg Vorbis tools (`vorbis-tools`)
 * Nginx web server with X-Accel-Redirect support (`nginx`)
+* Git (`git`)
+* RVM (require manual install)
 
 #### Database
 You need to create a MySQL database on server and create a `config/database.yml`.
@@ -42,10 +44,22 @@ production:
 
 ```
 
+#### RVM
+RVM is required on app server.
+
+```bash
+\curl -sSL https://get.rvm.io | bash -s stable
+source ~/.rvm/scripts/rvm
+rvm autolibs read-fail  # so that you know what packages are missing without giving your password
+# [install any missing system packages]
+rvm install 2.0.0
+
+```
+
 #### Nginx as a reverse proxy
 ```nginx
 upstream soundfile_puma {
-  server unix:/path/to/peddie_soundfile/shared/tmp/sockets/puma.sock;
+  server unix:/home/soundfile/rails/shared/tmp/sockets/puma.sock;
 }
 
 server {

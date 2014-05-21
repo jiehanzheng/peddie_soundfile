@@ -1,3 +1,3 @@
-role :app, %w{webapp@us1.jiehan.org}
-role :web, %w{webapp@us1.jiehan.org}
-role :db,  %w{webapp@us1.jiehan.org}
+role :app, %w{soundfile@peddie.managed.jiehan.org}
+role :web, %w{soundfile@peddie.managed.jiehan.org}
+role :db,  %w{soundfile@peddie.managed.jiehan.org}
